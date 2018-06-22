@@ -1,0 +1,13 @@
+{
+    "parameters": {
+        "db": {
+            "port": "1521",
+            "host": "144.21.81.223",
+            "user": "system",
+            "#password": "password",
+            "database": "ORCL"
+        },
+        "query": "SELECT PRODUCT_ID, LONGDESC, PURCHASE_PRICE\nFROM MARKETPLACE.PRODUCT",
+        "outputFile": "product.csv"
+    }
+}
