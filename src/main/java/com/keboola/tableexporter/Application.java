@@ -23,13 +23,12 @@ public class Application {
     private static String outputFile;
     private static Connection connection;
     
-    private static void readConfigFile() throws ApplicationException {
+    private static void readConfigFile(String configFile) throws ApplicationException {
         System.out.println("Processing configuration file");
         String jsonString;
         try {
-            String configPath = System.getenv("KBC_DATADIR") + "/config.json";
             byte[] encoded;
-            encoded = Files.readAllBytes(Paths.get(configPath));
+            encoded = Files.readAllBytes(Paths.get(configFile));
             jsonString = new String(encoded, "utf-8");        
         } catch (IOException ex) {
             throw new ApplicationException("Configuration file is invalid", ex);
@@ -91,7 +90,7 @@ public class Application {
     
     public static void main(String[] args) {
         try {
-            readConfigFile();
+            readConfigFile(args[0]);
             connectDb();
             fetchData();
             System.out.println("All done");
