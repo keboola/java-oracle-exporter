@@ -66,28 +66,23 @@ public class Application {
         try {
             long start = System.nanoTime();
             long end;
-            FileWriter fw = new FileWriter(filename);
+            CsvWriter writer = new CsvWriter(filename, null);
             Statement stmt = connection.createStatement();
             ResultSet rs;
             rs = stmt.executeQuery(query);
             int cnt = 0;
             while (rs.next()) {
-                fw.append(rs.getString(1));
-                fw.append(',');
-                fw.append(rs.getString(2));
-                fw.append(',');
-                fw.append(rs.getString(3));
-                fw.append('\n');
+                writer.writeLine(cnt, rs);
                 cnt++;
                 end = System.nanoTime();
                 if ((cnt % 1000) == 0) {
                     System.out.println("Fetched " + String.format("%d", cnt) + " rows in " + String.format("%d", (end - start) / 1000000000));
                 }
             }
-            fw.flush();
-            fw.close();
+            writer.flush();
+            writer.close();
             System.out.println("CSV File is created successfully.");
-        } catch (SQLException | IOException ex) {
+        } catch (SQLException | CsvException ex) {
             throw new UserException("Connection error: " + ex.getMessage(), ex);
         }
         System.out.println("Running query: " + query);
