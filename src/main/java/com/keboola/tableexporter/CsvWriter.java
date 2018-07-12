@@ -2,12 +2,14 @@ package com.keboola.tableexporter;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.QuoteMode;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class CsvWriter {
 
@@ -19,7 +21,7 @@ public class CsvWriter {
         try {
             writer = Files.newBufferedWriter(Paths.get(outputFile));
             if (header != null) {
-                csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180.withHeader(header));
+                csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180.withHeader(header).withQuoteMode(QuoteMode.ALL));
             } else {
                 csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180);
             }
@@ -31,7 +33,9 @@ public class CsvWriter {
     public static void writeLine(int lineNum, ResultSet content) throws UserException
     {
         try {
-            csvPrinter.printRecord(content);
+            csvPrinter.printRecords(content);
+        } catch (SQLException e) {
+            throw new UserException("Failed to print row " + lineNum, e);
         } catch (IOException e) {
             throw new UserException("Failed to print row " + lineNum, e);
         }

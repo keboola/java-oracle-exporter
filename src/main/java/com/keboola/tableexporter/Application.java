@@ -1,16 +1,11 @@
 package com.keboola.tableexporter;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.*;
+import java.util.ArrayList;
 import org.json.JSONObject;
 
 public class Application {
@@ -24,12 +19,13 @@ public class Application {
     private static Connection connection;
     
     private static void readConfigFile(String configFile) throws ApplicationException {
-        System.out.println("Processing configuration file");
+        System.out.println("Processing configuration file " + configFile);
         String jsonString;
         try {
             byte[] encoded;
-            encoded = Files.readAllBytes(Paths.get(configFile));
-            jsonString = new String(encoded, "utf-8");        
+            Path configPath = Paths.get(configFile);
+            encoded = Files.readAllBytes(configPath);
+            jsonString = new String(encoded, "utf-8");
         } catch (IOException ex) {
             throw new ApplicationException("Configuration file is invalid", ex);
         }
@@ -52,7 +48,7 @@ public class Application {
         try {
             StringBuilder connectionString = new StringBuilder();
             connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
-            System.out.println("Connecting to: " + connectionString);
+            System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost);
             connection = DriverManager.getConnection(connectionString.toString(), dbUser, dbPassword);
         } catch (SQLException ex) {
             throw new UserException("Connection error: " + ex.getMessage(), ex);
@@ -61,15 +57,20 @@ public class Application {
 
     private static void fetchData() throws UserException {
         System.out.println("Fetching data");
-        String filename ="/data/test.csv";
         try {
             long start = System.nanoTime();
             long end;
-            CsvWriter writer = new CsvWriter(filename, null);
             Statement stmt = connection.createStatement();
-            ResultSet rs;
-            rs = stmt.executeQuery(query);
-            int cnt = 0;
+            ResultSet rs = stmt.executeQuery(query);
+            ResultSetMetaData rsMeta = rs.getMetaData();
+            ArrayList<String> header = new ArrayList<String>();
+            for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
+                header.add(rsMeta.getColumnName(i));
+            }
+            String[] headerArr = new String[header.size()];
+            CsvWriter writer = new CsvWriter(outputFile, header.toArray(header.toArray(headerArr)));
+            writer.writeLine(1, rs);
+            int cnt = 2;
             while (rs.next()) {
                 writer.writeLine(cnt, rs);
                 cnt++;
@@ -80,7 +81,7 @@ public class Application {
             }
             writer.flush();
             writer.close();
-            System.out.println("CSV File is created successfully.");
+            System.out.println("CSV File was created successfully.");
         } catch (SQLException | CsvException ex) {
             throw new UserException("Connection error: " + ex.getMessage(), ex);
         }
