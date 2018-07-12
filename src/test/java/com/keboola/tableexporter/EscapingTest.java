@@ -1,15 +1,14 @@
 package com.keboola.tableexporter;
 
-import com.keboola.tableexporter.Application;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -21,13 +20,20 @@ public class EscapingTest extends BaseTest {
     }
 
     @Test
-    public void testEscapingFile() throws IOException
+    public void testEscapingFile() throws IOException, URISyntaxException, ApplicationException
     {
-        File expectedFile = new File("../resources/escaping/escaping.csv");
-        File noFile = new File("../../../data/test.csv");
+        ClassLoader classLoader = getClass().getClassLoader();
+        File expectedFile = new File(classLoader.getResource("escaping/escaping.csv").toURI());
+
         Application app = new Application();
-        String[] args = {"escaping/escaping.csv"};
+
+        URI configUri = classLoader.getResource("escaping/config.json").toURI();
+        String tmpConfig = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
+        String[] args = {tmpConfig};
         app.main(args);
-        assertTrue("The files differ!", FileUtils.contentEquals(expectedFile, noFile));
+
+        File output = new File(outputFile);
+
+        assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
     }
 }

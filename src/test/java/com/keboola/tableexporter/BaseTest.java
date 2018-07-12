@@ -1,22 +1,13 @@
 package com.keboola.tableexporter;
 
-import com.keboola.tableexporter.ApplicationException;
-import com.keboola.tableexporter.UserException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.json.JSONObject;
 import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.net.URISyntaxException;
+import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -24,7 +15,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class BaseTest {
 
@@ -37,22 +27,33 @@ public class BaseTest {
     protected static String query;
     protected static String outputFile;
 
-    protected void readConfigFile(String configFile) throws ApplicationException {
-        System.out.println("Processing configuration file");
+    protected String createTemporaryConfigFile(String configFile) throws IOException, ApplicationException {
         String jsonString;
         try {
-            ClassLoader classLoader = getClass().getClassLoader();
             byte[] encoded;
-            encoded = Files.readAllBytes(Paths.get(classLoader.getResource(configFile).toURI()));
+            encoded = Files.readAllBytes(Paths.get(configFile));
             jsonString = new String(encoded, "utf-8");
         } catch (IOException ex) {
             throw new ApplicationException("Configuration file is invalid", ex);
-        } catch (URISyntaxException e) {
-            throw new ApplicationException("Could not find config file", e);
         }
-        JSONObject obj = new JSONObject(jsonString);
-        query = obj.getJSONObject("parameters").getString("query");
-        outputFile = obj.getJSONObject("parameters").getString("outputFile");
+        JSONObject baseObj = new JSONObject(jsonString);
+        JSONObject paramsObj = baseObj.getJSONObject("parameters");
+        outputFile = paramsObj.getString("outputFile");
+        query = paramsObj.getString("query");
+        JSONObject dbobj = new JSONObject();
+
+        dbobj.put("host", System.getenv("DB_HOST"));
+        dbobj.put("port", System.getenv("DB_PORT"));
+        dbobj.put("user", System.getenv("DB_USER"));
+        dbobj.put("#password", System.getenv("DB_PASSWORD"));
+        dbobj.put("database", System.getenv("DB_DATABASE"));
+        paramsObj.put("db", dbobj);
+        baseObj.remove("parameters");
+        baseObj.put("parameters", paramsObj);
+        try (FileWriter file = new FileWriter("tmp.json")) {
+            file.write(baseObj.toString());
+        }
+        return "tmp.json";
     }
 
     private static void connectDb() throws ApplicationException, UserException {
@@ -70,7 +71,6 @@ public class BaseTest {
                     .append(dbPort)
                     .append(":")
                     .append(dbDatabase);
-            System.out.println("Connecting to: " + connectionString);
             connection = DriverManager.getConnection(connectionString.toString(), dbUser, dbPassword);
         } catch (SQLException ex) {
             throw new UserException("Connection error: " + ex.getMessage(), ex);
@@ -79,19 +79,12 @@ public class BaseTest {
 
     protected void setupDataTable(String testFile, String tableName) throws Exception {
 
-        System.out.println("System Env Vars");
-        for (Map.Entry<String, String> entry : System.getenv().entrySet())
-        {
-            System.out.println(entry.getKey() + "/" + entry.getValue());
-        }
-
         dbPort = System.getenv("DB_PORT");
         dbHost = System.getenv("DB_HOST");
         dbUser = System.getenv("DB_USER");
         dbPassword = System.getenv("DB_PASSWORD");
         dbDatabase = System.getenv("DB_DATABASE");
 
-        System.out.println("Host: " + dbHost);
         connectDb();
 
         ClassLoader classLoader = getClass().getClassLoader();
@@ -102,34 +95,31 @@ public class BaseTest {
             connectDb();
             dropTableIfExists(tableName);
             int cnt = 0;
-            for (CSVRecord csvRecord : csvParser) {
-                if (cnt == 0) {
-                    Iterator iter = csvRecord.iterator();
-                    String sql = "create table " + tableName + " (";
-                    while (iter.hasNext()) {
-                        sql += iter.next() + " varchar(64)";
-                        if (iter.hasNext()) {
-                            sql += ", ";
-                        }
-                    }
-                    sql += ")";
-                    Statement statement = connection.createStatement();
-                    statement.execute(sql);
-                } else {
-                    Iterator iter = csvRecord.iterator();
-                    String sql = "insert into " + tableName + " values (";
-                    while (iter.hasNext()) {
-                        sql += "'" + iter.next() + "'";
-                        if (iter.hasNext()) {
-                            sql += ", ";
-                        }
-                    }
-                    sql += ")";
-                    System.out.println(sql);
-                    Statement statement = connection.createStatement();
-                    statement.execute(sql);
+            Map<String, Integer> header = csvParser.getHeaderMap();
+            String headerSql = "create table " + tableName + " (";
+            for (Map.Entry<String, Integer> entry : header.entrySet()) {
+                if (cnt > 0) {
+                    headerSql += ", ";
                 }
+                headerSql += "\"" + entry.getKey() + "\" varchar(64)";
                 cnt++;
+            }
+            headerSql += ")";
+            Statement headerStatement = connection.createStatement();
+            headerStatement.execute(headerSql);
+
+            for (CSVRecord csvRecord : csvParser) {
+                Iterator iter = csvRecord.iterator();
+                String sql = "insert into " + tableName + " values (";
+                while (iter.hasNext()) {
+                    sql += "'" + iter.next() + "'";
+                    if (iter.hasNext()) {
+                        sql += ", ";
+                    }
+                }
+                sql += ")";
+                Statement statement = connection.createStatement();
+                statement.execute(sql);
             }
         } catch (Exception e) {
             throw e;
@@ -144,7 +134,7 @@ public class BaseTest {
 
     private void dropTableIfExists(String tableName) throws SQLException {
         String sql = "BEGIN\n" +
-                "   EXECUTE IMMEDIATE 'DROP TABLE %s';\n" +
+                "   EXECUTE IMMEDIATE 'DROP TABLE " + tableName + "';\n" +
                 "EXCEPTION\n" +
                 "   WHEN OTHERS THEN\n" +
                 "      IF SQLCODE != -942 THEN\n" +
