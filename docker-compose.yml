@@ -4,13 +4,15 @@ services:
   test-app:
     build: .
     image: keboola/oracle-table-exporter
+    volumes:
+      - ./:/code
     environment:
-      - "DB_HOST=oracle"
-      - "DB_PORT=1521"
-      - "DB_USER=system"
-      - "DB_PASSWORD=oracle"
-      - "DB_DATABASE=xe"
-    command: ["./wait-for-it.sh", "oracle:8080", "-t", "120", "--", "mvn test"]
+      DB_HOST: oracle
+      DB_PORT: 1521
+      DB_USER: system
+      DB_PASSWORD: oracle
+      DB_DATABASE: xe
+    command: "mvn -X verify"
     links:
       - oracle
 
