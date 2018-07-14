@@ -63,7 +63,7 @@ public class Application {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData rsMeta = rs.getMetaData();
-            ArrayList<String> header = new ArrayList<String>();
+            ArrayList<String> header = new ArrayList<>();
             for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
                 header.add(rsMeta.getColumnName(i));
             }

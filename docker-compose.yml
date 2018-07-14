@@ -11,8 +11,8 @@ services:
       DB_PORT: 1521
       DB_USER: system
       DB_PASSWORD: oracle
-      DB_DATABASE: xe
-    command: "mvn -X verify"
+      DB_DATABASE: xe    
+    command: /code/start.sh
     links:
       - oracle
 
