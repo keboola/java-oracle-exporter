@@ -79,7 +79,6 @@ public class Application {
                     System.out.println("Fetched " + String.format("%d", cnt) + " rows in " + String.format("%d", (end - start) / 1000000000));
                 }
             }
-            writer.flush();
             writer.close();
             System.out.println("CSV File was created successfully.");
         } catch (SQLException | CsvException ex) {

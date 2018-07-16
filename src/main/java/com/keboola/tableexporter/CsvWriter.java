@@ -13,8 +13,8 @@ import java.sql.SQLException;
 
 public class CsvWriter {
 
-    private static CSVPrinter csvPrinter;
-    private static BufferedWriter writer;
+    private CSVPrinter csvPrinter;
+    private BufferedWriter writer;
 
     public CsvWriter(String outputFile, String[] header) throws CsvException
     {
@@ -30,7 +30,7 @@ public class CsvWriter {
         }
     }
 
-    public static void writeLine(int lineNum, ResultSet content) throws UserException
+    public void writeLine(int lineNum, ResultSet content) throws UserException
     {
         try {
             csvPrinter.printRecords(content);
@@ -41,18 +41,10 @@ public class CsvWriter {
         }
     }
 
-    public static void flush() throws CsvException
+    public void close() throws CsvException
     {
         try {
             csvPrinter.flush();
-        } catch (IOException e) {
-            throw new CsvException("Failed flushing buffer", e);
-        }
-    }
-
-    public static void close() throws CsvException
-    {
-        try {
             csvPrinter.close();
             writer.close();
         } catch (IOException e) {
