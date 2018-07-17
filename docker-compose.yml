@@ -1,7 +1,7 @@
 version: "2"
 
 services:
-  test-app:
+  tests:
     build: .
     image: keboola/oracle-table-exporter
     volumes:
