@@ -69,13 +69,17 @@ public class Application {
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData rsMeta = rs.getMetaData();
             ArrayList<String> header = new ArrayList<>();
+            Boolean hasLobs = false;
             for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
                 header.add(rsMeta.getColumnName(i));
+                if (rsMeta.getColumnTypeName(i) == "CLOB") {
+                    hasLobs = true;
+                }
             }
             String[] headerArr = new String[header.size()];
             CsvWriter writer = new CsvWriter(outputFile, header.toArray(header.toArray(headerArr)));
             // write the result set to csv
-            writer.write(rs);
+            writer.write(rs, hasLobs);
             // get the number of rows written
             int rowCount = 0;
             // this will first move the cursor to the end of the result set or return false if no rows
