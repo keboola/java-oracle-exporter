@@ -63,8 +63,9 @@ public class Application {
         System.out.println("Fetching data");
         try {
             final long start = System.nanoTime();
-            long end = start;
-            Statement stmt = connection.createStatement();
+            // make sure we can scroll back after writing to get the rowCount
+            Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            System.out.println("Executing query: " + query);
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData rsMeta = rs.getMetaData();
             ArrayList<String> header = new ArrayList<>();
@@ -73,21 +74,23 @@ public class Application {
             }
             String[] headerArr = new String[header.size()];
             CsvWriter writer = new CsvWriter(outputFile, header.toArray(header.toArray(headerArr)));
-            int cnt = 1;
-            writer.writeLine(cnt, rs);
-            while (rs.next()) {
-                cnt++;
-                writer.writeLine(cnt, rs);
-                end = System.nanoTime();
+            // write the result set to csv
+            writer.write(rs);
+            // get the number of rows written
+            int rowCount = 0;
+            // this will first move the cursor to the end of the result set or return false if no rows
+            if (rs.last()) {
+                rowCount = rs.getRow();
             }
-            System.out.println("Fetched " + String.format("%d", cnt - 1) + " rows in " + String.format("%d", (end - start) / 1000000000));
+            final long end = System.nanoTime();
+            System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
             writer.close();
-            System.out.println("CSV File was created successfully.");
-        } catch (SQLException | CsvException ex) {
-            throw new UserException("Connection error: " + ex.getMessage(), ex);
+            System.out.println("Data File " + outputFile + " was created successfully.");
+        } catch (SQLException ex) {
+            throw new UserException("SQL Exception: " + ex.getMessage(), ex);
+        } catch (CsvException ex) {
+            throw new UserException("IO Exception: " + ex.getMessage(), ex);
         }
-        System.out.println("Running query: " + query);
-        System.out.println("Data stored in: " + outputFile);
     }
     
     public static void main(String[] args) {

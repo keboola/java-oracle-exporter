@@ -32,14 +32,14 @@ public class CsvWriter {
         }
     }
 
-    public void writeLine(int lineNum, ResultSet content) throws UserException
+    public void write(ResultSet content) throws UserException
     {
         try {
             csvPrinter.printRecords(content);
         } catch (SQLException e) {
-            throw new UserException("Failed to print row " + lineNum, e);
+            throw new UserException("Failed to write csv ", e);
         } catch (IOException e) {
-            throw new UserException("Failed to print row " + lineNum, e);
+            throw new UserException("Failed to write csv ", e);
         }
     }
 
