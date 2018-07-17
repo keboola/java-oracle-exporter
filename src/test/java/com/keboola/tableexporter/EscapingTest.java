@@ -37,4 +37,22 @@ public class EscapingTest extends BaseTest {
 
         assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
     }
+
+    @Test
+    public void testEmptyResultSet() throws IOException, URISyntaxException, ApplicationException
+    {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File expectedFile = new File(classLoader.getResource("escaping/emptyResult.csv").toURI());
+
+        Application app = new Application();
+
+        URI configUri = classLoader.getResource("escaping/emptyResultConfig.json").toURI();
+        String tmpConfig = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
+        String[] args = {tmpConfig};
+        app.main(args);
+
+        File output = new File(outputFile);
+
+        assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
+    }
 }

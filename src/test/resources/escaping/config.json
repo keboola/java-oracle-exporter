@@ -1,6 +1,6 @@
 {
   "parameters": {
     "query": "SELECT * FROM escaping",
-    "outputFile": "in.c-main.escaping"
+    "outputFile": "/code/in.c-main.escaping"
   }
 }
