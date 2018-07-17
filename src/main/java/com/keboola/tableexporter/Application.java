@@ -6,6 +6,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+
+import com.keboola.tableexporter.exception.ApplicationException;
+import com.keboola.tableexporter.exception.CsvException;
+import com.keboola.tableexporter.exception.UserException;
 import org.json.JSONObject;
 
 public class Application {

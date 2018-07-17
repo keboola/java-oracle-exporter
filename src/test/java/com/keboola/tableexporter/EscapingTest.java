@@ -1,5 +1,6 @@
 package com.keboola.tableexporter;
 
+import com.keboola.tableexporter.exception.ApplicationException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;

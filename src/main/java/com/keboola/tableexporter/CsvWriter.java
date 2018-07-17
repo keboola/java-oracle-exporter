@@ -1,5 +1,7 @@
 package com.keboola.tableexporter;
 
+import com.keboola.tableexporter.exception.CsvException;
+import com.keboola.tableexporter.exception.UserException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
