@@ -79,6 +79,46 @@ public class BaseTest {
         }
     }
 
+    protected void setupClobTable(String testFile, String tableName) throws Exception {
+
+        dbPort = System.getenv("DB_PORT");
+        dbHost = System.getenv("DB_HOST");
+        dbUser = System.getenv("DB_USER");
+        dbPassword = System.getenv("DB_PASSWORD");
+        dbDatabase = System.getenv("DB_DATABASE");
+
+        connectDb();
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        Reader reader = Files.newBufferedReader(Paths.get(classLoader.getResource(testFile).toURI()));
+
+        CSVParser csvParser = new CSVParser(reader, CSVFormat.RFC4180.withFirstRecordAsHeader().withTrim());
+        try {
+            connectDb();
+            dropTableIfExists(tableName);
+            int cnt = 0;
+            String headerSql = "create table clobtest (\"index\" integer, xml CLOB)";
+            Statement headerStatement = connection.createStatement();
+            headerStatement.execute(headerSql);
+
+            for (CSVRecord csvRecord : csvParser) {
+                Iterator iter = csvRecord.iterator();
+                String sql = "insert into " + tableName + " values (";
+                while (iter.hasNext()) {
+                    sql += "'" + iter.next() + "'";
+                    if (iter.hasNext()) {
+                        sql += ", ";
+                    }
+                }
+                sql += ")";
+                Statement statement = connection.createStatement();
+                statement.execute(sql);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
     protected void setupDataTable(String testFile, String tableName) throws Exception {
 
         dbPort = System.getenv("DB_PORT");
