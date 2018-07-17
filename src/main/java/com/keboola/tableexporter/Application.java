@@ -58,8 +58,8 @@ public class Application {
     private static void fetchData() throws UserException {
         System.out.println("Fetching data");
         try {
-            long start = System.nanoTime();
-            long end;
+            final long start = System.nanoTime();
+            long end = start;
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -69,16 +69,14 @@ public class Application {
             }
             String[] headerArr = new String[header.size()];
             CsvWriter writer = new CsvWriter(outputFile, header.toArray(header.toArray(headerArr)));
-            writer.writeLine(1, rs);
-            int cnt = 2;
+            int cnt = 1;
+            writer.writeLine(cnt, rs);
             while (rs.next()) {
-                writer.writeLine(cnt, rs);
                 cnt++;
+                writer.writeLine(cnt, rs);
                 end = System.nanoTime();
-                if ((cnt % 1000) == 0) {
-                    System.out.println("Fetched " + String.format("%d", cnt) + " rows in " + String.format("%d", (end - start) / 1000000000));
-                }
             }
+            System.out.println("Fetched " + String.format("%d", cnt - 1) + " rows in " + String.format("%d", (end - start) / 1000000000));
             writer.close();
             System.out.println("CSV File was created successfully.");
         } catch (SQLException | CsvException ex) {
