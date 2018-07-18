@@ -6,17 +6,14 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Iterator;
 
 public class CsvWriter {
 
@@ -58,16 +55,15 @@ public class CsvWriter {
             for (int i = 1; i <= columnCount; ++i) {
                 if (rsMeta.getColumnTypeName(i) == "CLOB") {
                     Clob clob = resultSet.getClob(i);
-                    int length;
-                    if (clob.length() > Integer.MAX_VALUE) {
+                    if (clob == null) {
+                        csvPrinter.print("");
+                    } else if (clob.length() > Integer.MAX_VALUE) {
                         System.out.println("Clob Column " + rsMeta.getColumnName(i)
                                 + " has an entry that is too big for export. It will be truncated.");
-                        length = Integer.MAX_VALUE;
+                        csvPrinter.print(clob.getSubString(1, Integer.MAX_VALUE));
                     } else {
-                        length = (int) clob.length();
+                        csvPrinter.print(clob.getSubString(1,(int) clob.length()));
                     }
-                    String clobString = clob.getSubString(1,length);
-                    csvPrinter.print(clobString);
                 } else {
                     csvPrinter.print(resultSet.getObject(i));
                 }
