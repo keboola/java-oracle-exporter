@@ -24,9 +24,15 @@ public class CsvWriter {
         try {
             writer = Files.newBufferedWriter(Paths.get(outputFile));
             if (header != null) {
-                csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180.withHeader(header).withQuoteMode(QuoteMode.ALL));
+                csvPrinter = new CSVPrinter(
+                    writer,
+                    CSVFormat.RFC4180.withHeader(header).withQuoteMode(QuoteMode.ALL).withRecordSeparator('\n')
+                );
             } else {
-                csvPrinter = new CSVPrinter(writer, CSVFormat.RFC4180);
+                csvPrinter = new CSVPrinter(
+                    writer,
+                    CSVFormat.RFC4180.withQuoteMode(QuoteMode.ALL).withRecordSeparator('\n')
+                );
             }
         } catch (IOException e) {
             throw new CsvException("Failed opening output file.", e);
