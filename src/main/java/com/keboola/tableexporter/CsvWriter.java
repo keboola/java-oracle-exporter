@@ -57,7 +57,8 @@ public class CsvWriter {
             for (int i = 1; i <= columnCount; ++i) {
                 if (rsMeta.getColumnTypeName(i) == "CLOB") {
                     Clob clob = resultSet.getClob(i);
-                    csvPrinter.print(this.clobToString(clob));
+                    String clobString = this.clobToString(clob);
+                    csvPrinter.print(clobString);
                 } else {
                     csvPrinter.print(resultSet.getObject(i));
                 }
