@@ -6,6 +6,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
@@ -57,7 +58,15 @@ public class CsvWriter {
             for (int i = 1; i <= columnCount; ++i) {
                 if (rsMeta.getColumnTypeName(i) == "CLOB") {
                     Clob clob = resultSet.getClob(i);
-                    String clobString = this.clobToString(clob);
+                    int length;
+                    if (clob.length() > Integer.MAX_VALUE) {
+                        System.out.println("Clob Column " + rsMeta.getColumnName(i)
+                                + " has an entry that is too big for export. It will be truncated.");
+                        length = Integer.MAX_VALUE;
+                    } else {
+                        length = (int) clob.length();
+                    }
+                    String clobString = clob.getSubString(1,length);
                     csvPrinter.print(clobString);
                 } else {
                     csvPrinter.print(resultSet.getObject(i));
@@ -74,33 +83,6 @@ public class CsvWriter {
             writer.close();
         } catch (IOException e) {
             throw new CsvException("Failed closing file writer", e);
-        }
-    }
-
-    private String clobToString(Clob clob) throws CsvException {
-        Reader clobReader = null;
-        try {
-            clobReader = clob.getCharacterStream();
-            final int clobLength = (int) clob.length();
-            char[] charBuffer = new char[clobLength];
-            int offset = 0;
-            int charsRead = clobReader.read(charBuffer, offset, clobLength);
-            while (charsRead > 0) {
-                offset += charsRead;
-                charsRead = clobReader.read(charBuffer, offset, clobLength);
-            }
-            return new String(charBuffer);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            throw new CsvException("Clob to String conversion error", e);
-        } finally {
-            if (clobReader != null) {
-                try {
-                    clobReader.close();
-                } catch (IOException e) {
-                }
-            }
         }
     }
 }
