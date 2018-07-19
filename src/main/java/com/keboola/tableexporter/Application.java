@@ -63,8 +63,7 @@ public class Application {
         System.out.println("Fetching data");
         try {
             final long start = System.nanoTime();
-            // make sure we can scroll back after writing to get the rowCount
-            Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            Statement stmt = connection.createStatement();
             System.out.println("Executing query: " + query);
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -79,13 +78,7 @@ public class Application {
             String[] headerArr = new String[header.size()];
             CsvWriter writer = new CsvWriter(outputFile, header.toArray(header.toArray(headerArr)));
             // write the result set to csv
-            writer.write(rs, hasLobs);
-            // get the number of rows written
-            int rowCount = 0;
-            // this will first move the cursor to the end of the result set or return false if no rows
-            if (rs.last()) {
-                rowCount = rs.getRow();
-            }
+            int rowCount = writer.write(rs, hasLobs);
             final long end = System.nanoTime();
             System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
             writer.close();
