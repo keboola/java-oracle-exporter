@@ -17,6 +17,11 @@ import java.sql.SQLException;
 
 public class CsvWriter {
 
+    /**
+     * Flush the writer after this many records are printed
+     */
+    private static final int FLUSH_LEVEL = 50000;
+
     private CSVPrinter csvPrinter;
     private BufferedWriter writer;
 
@@ -39,12 +44,12 @@ public class CsvWriter {
         }
     }
 
-    public void write(ResultSet resultSet, boolean hasLobs) throws UserException, CsvException {
+    public int write(ResultSet resultSet, boolean hasLobs) throws UserException, CsvException {
         try {
             if (hasLobs) {
-                this.printRecordsWithLobs(resultSet);
+                return this.printRecordsWithLobs(resultSet);
             } else {
-                csvPrinter.printRecords(resultSet);
+                return this.printRecords(resultSet);
             }
         } catch (SQLException e) {
             throw new UserException("Failed to write csv ", e);
@@ -53,10 +58,30 @@ public class CsvWriter {
         }
     }
 
-    public void printRecordsWithLobs(ResultSet resultSet) throws SQLException, IOException, CsvException {
+    public int printRecords(ResultSet resultSet) throws UserException, CsvException {
+        try {
+            int columnCount = resultSet.getMetaData().getColumnCount();
+            int rowCount = 1;
+            while(resultSet.next()) {
+                for(int i = 1; i <= columnCount; ++i) {
+                    csvPrinter.print(resultSet.getObject(i));
+                }
+                csvPrinter.println();
+                rowCount++;
+                this.flushIfRequired(rowCount);
+            }
+            return rowCount;
+        } catch (SQLException e) {
+            throw new UserException("Failed to write csv ", e);
+        } catch (IOException e) {
+            throw new UserException("Failed to write csv ", e);
+        }
+    }
+
+    public int printRecordsWithLobs(ResultSet resultSet) throws SQLException, IOException, CsvException {
         ResultSetMetaData rsMeta = resultSet.getMetaData();
         int columnCount = rsMeta.getColumnCount();
-
+        int rowCount = 1;
         while (resultSet.next()) {
             for (int i = 1; i <= columnCount; ++i) {
                 if (rsMeta.getColumnTypeName(i) == "CLOB") {
@@ -75,7 +100,10 @@ public class CsvWriter {
                 }
             }
             csvPrinter.println();
+            rowCount++;
+            this.flushIfRequired(rowCount);
         }
+        return rowCount;
     }
 
     public void close() throws CsvException {
@@ -85,6 +113,12 @@ public class CsvWriter {
             writer.close();
         } catch (IOException e) {
             throw new CsvException("Failed closing file writer", e);
+        }
+    }
+
+    private void flushIfRequired(int rowCount) throws IOException {
+        if (rowCount % FLUSH_LEVEL == 0) {
+            csvPrinter.flush();
         }
     }
 }
