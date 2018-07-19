@@ -1,0 +1,23 @@
+version: "2"
+
+services:
+  tests:
+    build: .
+    image: keboola/oracle-table-exporter
+    volumes:
+      - ./:/code
+    environment:
+      DB_HOST: oracle
+      DB_PORT: 1521
+      DB_USER: system
+      DB_PASSWORD: oracle
+      DB_DATABASE: xe    
+    command: /code/start.sh
+    links:
+      - oracle
+
+  oracle:
+    image: alexeiled/docker-oracle-xe-11g
+    ports:
+      - "8080:8080"
+      - "1521:1521"

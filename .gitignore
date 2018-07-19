@@ -1,1 +1,5 @@
 /ojdbc8-full
+/data
+/target
+/data/config.json
+/TableExporter.iml

@@ -1,16 +1,15 @@
 package com.keboola.tableexporter;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.*;
+import java.util.ArrayList;
+
+import com.keboola.tableexporter.exception.ApplicationException;
+import com.keboola.tableexporter.exception.CsvException;
+import com.keboola.tableexporter.exception.UserException;
 import org.json.JSONObject;
 
 public class Application {
@@ -23,14 +22,14 @@ public class Application {
     private static String outputFile;
     private static Connection connection;
     
-    private static void readConfigFile() throws ApplicationException {
-        System.out.println("Processing configuration file");
+    private static void readConfigFile(String configFile) throws ApplicationException {
+        System.out.println("Processing configuration file " + configFile);
         String jsonString;
         try {
-            String configPath = System.getenv("KBC_DATADIR") + "/config.json";
             byte[] encoded;
-            encoded = Files.readAllBytes(Paths.get(configPath));
-            jsonString = new String(encoded, "utf-8");        
+            Path configPath = Paths.get(configFile);
+            encoded = Files.readAllBytes(configPath);
+            jsonString = new String(encoded, "utf-8");
         } catch (IOException ex) {
             throw new ApplicationException("Configuration file is invalid", ex);
         }
@@ -53,7 +52,7 @@ public class Application {
         try {
             StringBuilder connectionString = new StringBuilder();
             connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
-            System.out.println("Connecting to: " + connectionString);
+            System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost);
             connection = DriverManager.getConnection(connectionString.toString(), dbUser, dbPassword);
         } catch (SQLException ex) {
             throw new UserException("Connection error: " + ex.getMessage(), ex);
@@ -62,41 +61,45 @@ public class Application {
 
     private static void fetchData() throws UserException {
         System.out.println("Fetching data");
-        String filename ="/data/test.csv";
         try {
-            long start = System.nanoTime();
-            long end;
-            FileWriter fw = new FileWriter(filename);
-            Statement stmt = connection.createStatement();
-            ResultSet rs;
-            rs = stmt.executeQuery(query);
-            int cnt = 0;
-            while (rs.next()) {
-                fw.append(rs.getString(1));
-                fw.append(',');
-                fw.append(rs.getString(2));
-                fw.append(',');
-                fw.append(rs.getString(3));
-                fw.append('\n');
-                cnt++;
-                end = System.nanoTime();
-                if ((cnt % 1000) == 0) {
-                    System.out.println("Fetched " + String.format("%d", cnt) + " rows in " + String.format("%d", (end - start) / 1000000000));
+            final long start = System.nanoTime();
+            // make sure we can scroll back after writing to get the rowCount
+            Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            System.out.println("Executing query: " + query);
+            ResultSet rs = stmt.executeQuery(query);
+            ResultSetMetaData rsMeta = rs.getMetaData();
+            ArrayList<String> header = new ArrayList<>();
+            Boolean hasLobs = false;
+            for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
+                header.add(rsMeta.getColumnName(i));
+                if (rsMeta.getColumnTypeName(i) == "CLOB") {
+                    hasLobs = true;
                 }
             }
-            fw.flush();
-            fw.close();
-            System.out.println("CSV File is created successfully.");
-        } catch (SQLException | IOException ex) {
-            throw new UserException("Connection error: " + ex.getMessage(), ex);
+            String[] headerArr = new String[header.size()];
+            CsvWriter writer = new CsvWriter(outputFile, header.toArray(header.toArray(headerArr)));
+            // write the result set to csv
+            writer.write(rs, hasLobs);
+            // get the number of rows written
+            int rowCount = 0;
+            // this will first move the cursor to the end of the result set or return false if no rows
+            if (rs.last()) {
+                rowCount = rs.getRow();
+            }
+            final long end = System.nanoTime();
+            System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
+            writer.close();
+            System.out.println("Data File " + outputFile + " was created successfully.");
+        } catch (SQLException ex) {
+            throw new UserException("SQL Exception: " + ex.getMessage(), ex);
+        } catch (CsvException ex) {
+            throw new UserException("IO Exception: " + ex.getMessage(), ex);
         }
-        System.out.println("Running query: " + query);
-        System.out.println("Data stored in: " + outputFile);
     }
     
     public static void main(String[] args) {
         try {
-            readConfigFile();
+            readConfigFile(args[0]);
             connectDb();
             fetchData();
             System.out.println("All done");

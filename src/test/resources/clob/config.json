@@ -1,0 +1,6 @@
+{
+  "parameters": {
+    "query": "SELECT * FROM clobtest",
+    "outputFile": "/code/in.c-main.clobtest"
+  }
+}
