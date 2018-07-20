@@ -49,13 +49,20 @@ public class Application {
         } catch (SQLException ex) {
             throw new ApplicationException("Driver error", ex);
         }
+        StringBuilder connectionString = new StringBuilder();
         try {
-            StringBuilder connectionString = new StringBuilder();
             connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
             System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost);
             connection = DriverManager.getConnection(connectionString.toString(), dbUser, dbPassword);
         } catch (SQLException ex) {
-            throw new UserException("Connection error: " + ex.getMessage(), ex);
+            connectionString.setLength(0);
+            connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append("/").append(dbName);
+            try {
+                System.out.println("Trying again as service name instead of SID. Previous error was: " + ex.getMessage());
+                connection = DriverManager.getConnection(connectionString.toString(), dbUser, dbPassword);
+            } catch (SQLException e) {
+                throw new UserException("Connection error: " + e.getMessage(), e);
+            }
         }
     }
 
