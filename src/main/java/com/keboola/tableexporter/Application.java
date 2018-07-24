@@ -1,15 +1,19 @@
 package com.keboola.tableexporter;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
 import com.keboola.tableexporter.exception.UserException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Application {
@@ -71,6 +75,7 @@ public class Application {
         try {
             final long start = System.nanoTime();
             Statement stmt = connection.createStatement();
+            DatabaseMetaData dbMeta = connection.getMetaData();
             System.out.println("Executing query: " + query);
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -90,11 +95,75 @@ public class Application {
             System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
             writer.close();
             System.out.println("Data File " + outputFile + " was created successfully.");
+            writeManifest(outputFile, rsMeta, dbMeta);
         } catch (SQLException ex) {
             throw new UserException("SQL Exception: " + ex.getMessage(), ex);
         } catch (CsvException ex) {
             throw new UserException("IO Exception: " + ex.getMessage(), ex);
+        } catch (IOException ex) {
+            throw new UserException("IO Exception: " + ex.getMessage(), ex);
         }
+    }
+
+    private static void writeManifest(
+        String outputFile,
+        ResultSetMetaData rsMeta,
+        DatabaseMetaData dbMeta
+    ) throws UserException, IOException {
+        try {
+            JSONArray columnNames = new JSONArray();
+            JSONObject tableMetadata = new JSONObject();
+            JSONObject manifest = new JSONObject();
+            JSONObject allColumnMetadata = new JSONObject();
+            ArrayList<String> pkList = new ArrayList<String>();
+            for (int i = 1; i < rsMeta.getColumnCount(); i++) {
+                // just get table metadata for the first column (this may result in bs results for complicated queries)
+                if (i == 1) {
+                    String catalog = rsMeta.getCatalogName(i);
+                    String schema = rsMeta.getSchemaName(i);
+                    String table = rsMeta.getTableName(i);
+                    ResultSet pks = dbMeta.getPrimaryKeys(catalog, schema, table);
+                    while (pks.next()) {
+                        pkList.add(pks.getString("COLUMN_NAME"));
+                    }
+                }
+                JSONArray columnMetadata = new JSONArray();
+                String name = rsMeta.getColumnName(i);
+                columnNames.put(name);
+                columnMetadata.put(makeMetadataObject("name", name));
+                columnMetadata.put(makeMetadataObject("ordinalPosition", String.valueOf(i)));
+                columnMetadata.put(makeMetadataObject("autoIncrement", String.valueOf(rsMeta.isAutoIncrement(i))));
+                columnMetadata.put(makeMetadataObject("primaryKey", String.valueOf(pkList.contains(name))));
+                columnMetadata.put(makeMetadataObject("isCurrency", String.valueOf(rsMeta.isCurrency(i))));
+                columnMetadata.put(makeMetadataObject("datatype.type", rsMeta.getColumnTypeName(i)));
+                String length = rsMeta.getPrecision(i) != 0 ? String.valueOf(rsMeta.getPrecision(i)) : "null";
+                if (rsMeta.getScale(i) != 0) {
+                    length += "," + rsMeta.getScale(i);
+                }
+                columnMetadata.put(makeMetadataObject("datatype.length", length));
+                columnMetadata.put(makeMetadataObject("datatype.nullable", String.valueOf(rsMeta.isNullable(i) == 0)));
+                allColumnMetadata.put(name, columnMetadata);
+            }
+
+            manifest.put("columns", columnNames);
+            manifest.put("metadata", tableMetadata);
+            manifest.put("columnMetadata", allColumnMetadata);
+            try (FileWriter file = new FileWriter(outputFile + ".manifest")) {
+                file.write(manifest.toString());
+                System.out.println("Successfully Copied JSON Object to File...");
+                System.out.println("\nJSON Object: " + manifest.toString());
+            }
+        } catch (SQLException e) {
+            throw new UserException("Error writing manifest: " + e.getMessage(), e);
+        }
+
+    }
+
+    private static JSONObject makeMetadataObject(String key, String value) {
+        JSONObject output = new JSONObject();
+        output.put("key", "KBC." + key);
+        output.put("value", value);
+        return output;
     }
     
     public static void main(String[] args) {
