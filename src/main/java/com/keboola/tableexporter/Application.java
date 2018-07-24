@@ -78,16 +78,13 @@ public class Application {
             System.out.println("Executing query: " + query);
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData rsMeta = rs.getMetaData();
-            ArrayList<String> header = new ArrayList<>();
             Boolean hasLobs = false;
             for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
-                header.add(rsMeta.getColumnName(i));
                 if (rsMeta.getColumnTypeName(i) == "CLOB") {
                     hasLobs = true;
                 }
             }
-            String[] headerArr = new String[header.size()];
-            CsvWriter writer = new CsvWriter(outputFile, header.toArray(header.toArray(headerArr)));
+            CsvWriter writer = new CsvWriter(outputFile, null);
             // write the result set to csv
             int rowCount = writer.write(rs, hasLobs);
             final long end = System.nanoTime();
