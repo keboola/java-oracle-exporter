@@ -1,6 +1,9 @@
 {
   "parameters": {
+    "id": 333,
     "query": "SELECT * FROM clobtest",
-    "outputFile": "/code/in.c-main.clobtest"
+    "outputFile": "/code/in.c-main.clobtest.csv",
+    "outputTable": "in.c-main.clobtest",
+    "incremental": false
   }
 }

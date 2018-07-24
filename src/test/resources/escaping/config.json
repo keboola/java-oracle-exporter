@@ -1,6 +1,9 @@
 {
   "parameters": {
+    "id": 123,
     "query": "SELECT * FROM escaping",
-    "outputFile": "/code/in.c-main.escaping"
+    "outputFile": "/code/in.c-main.escaping.csv",
+    "outputTable": "in.c-main.escaping",
+    "incremental": false
   }
 }
