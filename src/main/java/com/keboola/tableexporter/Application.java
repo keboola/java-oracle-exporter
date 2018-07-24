@@ -23,6 +23,11 @@ public class Application {
     private static String dbName;
     private static String query;
     private static String outputFile;
+    private static String outputTable;
+    private static String table;
+    private static String schema;
+    private static boolean incremental;
+    private static JSONArray primaryKey;
     private static Connection connection;
     
     private static void readConfigFile(String configFile) throws ApplicationException {
@@ -37,13 +42,26 @@ public class Application {
             throw new ApplicationException("Configuration file is invalid", ex);
         }
         JSONObject obj = new JSONObject(jsonString);
-        dbPort = obj.getJSONObject("parameters").getJSONObject("db").getString("port");
-        dbHost = obj.getJSONObject("parameters").getJSONObject("db").getString("host");
-        dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
-        dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
-        dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
-        query = obj.getJSONObject("parameters").getString("query");
-        outputFile = obj.getJSONObject("parameters").getString("outputFile");
+        JSONObject params = obj.getJSONObject("parameters");
+        JSONObject db = params.getJSONObject("db");
+        dbPort = db.getString("port");
+        dbHost = db.getString("host");
+        dbUser = db.getString("user");
+        dbPassword = db.getString("#password");
+        dbName = db.getString("database");
+        query = params.getString("query");
+        outputFile = params.getString("outputFile");
+        outputTable = params.getString("outputTable");
+        if (params.has("incremental")) {
+            incremental = params.getBoolean("incremental");
+        }
+        if (params.has("primaryKey")) {
+            primaryKey = params.getJSONArray("primaryKey");
+        }
+        if (params.has("table")) {
+            table = params.getJSONObject("table").getString("tableName");
+            schema = params.getJSONObject("table").getString("schema");
+        }
     }    
     
     private static void connectDb() throws ApplicationException, UserException {
@@ -128,6 +146,7 @@ public class Application {
                         pkList.add(pks.getString("COLUMN_NAME"));
                     }
                 }
+
                 JSONArray columnMetadata = new JSONArray();
                 String name = rsMeta.getColumnName(i);
                 columnNames.put(name);
@@ -149,6 +168,9 @@ public class Application {
             manifest.put("columns", columnNames);
             manifest.put("metadata", tableMetadata);
             manifest.put("columnMetadata", allColumnMetadata);
+            manifest.put("destination", outputTable);
+            manifest.put("incremental", incremental);
+            manifest.put("primaryKey", primaryKey);
             try (FileWriter file = new FileWriter(outputFile + ".manifest")) {
                 file.write(manifest.toString());
                 System.out.println("Successfully Copied JSON Object to File...");

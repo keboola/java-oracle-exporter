@@ -1,6 +1,8 @@
 {
   "parameters": {
     "query": "SELECT * FROM escaping WHERE \"col1\" = 'abc'",
-    "outputFile": "in.c-main.escaping"
+    "outputFile": "in.c-main.escaping-empty.csv",
+    "incremental": false,
+    "outputTable": "in.c-main.escaping-empty"
   }
 }
