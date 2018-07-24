@@ -1,5 +1,6 @@
 package com.keboola.tableexporter;
 
+import java.awt.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,8 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
@@ -112,18 +111,23 @@ public class Application {
     ) throws UserException, IOException {
         try {
             JSONArray columnNames = new JSONArray();
-            JSONObject tableMetadata = new JSONObject();
+            JSONArray tableMetadata = new JSONArray();
             JSONObject manifest = new JSONObject();
             JSONObject allColumnMetadata = new JSONObject();
             ArrayList<String> pkList = new ArrayList<String>();
-            for (int i = 1; i < rsMeta.getColumnCount(); i++) {
+            for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
                 // just get table metadata for the first column (this may result in bs results for complicated queries)
                 if (i == 1) {
                     String catalog = rsMeta.getCatalogName(i);
                     String schema = rsMeta.getSchemaName(i);
                     String table = rsMeta.getTableName(i);
+                    System.out.println("CATALOG " + catalog + " SCHEMA " + schema + " TABLE " + table);
                     ResultSet pks = dbMeta.getPrimaryKeys(catalog, schema, table);
+                    tableMetadata.put(makeMetadataObject("name", table));
+                    tableMetadata.put(makeMetadataObject("schema", schema));
+                    tableMetadata.put(makeMetadataObject("catalog", catalog));
                     while (pks.next()) {
+                        System.out.println("ADDING PK " + pks.getString("COLUMN_NAME"));
                         pkList.add(pks.getString("COLUMN_NAME"));
                     }
                 }
