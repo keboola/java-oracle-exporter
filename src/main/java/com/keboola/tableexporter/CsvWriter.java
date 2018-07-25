@@ -61,7 +61,7 @@ public class CsvWriter {
     public int printRecords(ResultSet resultSet) throws UserException, CsvException {
         try {
             int columnCount = resultSet.getMetaData().getColumnCount();
-            int rowCount = 1;
+            int rowCount = 0;
             while(resultSet.next()) {
                 for(int i = 1; i <= columnCount; ++i) {
                     csvPrinter.print(resultSet.getObject(i));

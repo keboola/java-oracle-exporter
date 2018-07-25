@@ -58,10 +58,15 @@ public class Application {
         }
         if (params.has("primaryKey")) {
             primaryKey = params.getJSONArray("primaryKey");
+        } else {
+            primaryKey = null;
         }
         if (params.has("table")) {
             table = params.getJSONObject("table").getString("tableName");
             schema = params.getJSONObject("table").getString("schema");
+        } else {
+            table = null;
+            schema = null;
         }
     }    
     
@@ -133,26 +138,30 @@ public class Application {
         try {
             JSONArray columnNames = new JSONArray();
             JSONArray tableMetadata = new JSONArray();
-            JSONObject manifest = new JSONObject();
-            JSONObject allColumnMetadata = new JSONObject();
             ArrayList<String> pkList = new ArrayList<String>();
-            for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
-                // just get table metadata for the first column (this may result in bs results for complicated queries)
-                if (i == 1) {
-                    String catalog = rsMeta.getCatalogName(i);
-                    String schema = rsMeta.getSchemaName(i);
-                    String table = rsMeta.getTableName(i);
-                    System.out.println("CATALOG " + catalog + " SCHEMA " + schema + " TABLE " + table);
-                    ResultSet pks = dbMeta.getPrimaryKeys(catalog, schema, table);
-                    tableMetadata.put(makeMetadataObject("name", table));
-                    tableMetadata.put(makeMetadataObject("schema", schema));
-                    tableMetadata.put(makeMetadataObject("catalog", catalog));
-                    while (pks.next()) {
-                        System.out.println("ADDING PK " + pks.getString("COLUMN_NAME"));
-                        pkList.add(pks.getString("COLUMN_NAME"));
-                    }
+            if (table != null) {
+                ResultSet tables = dbMeta.getTables(null, schema, table, null);
+                tables.next();
+                tableMetadata.put(makeMetadataObject("name", table));
+                tableMetadata.put(makeMetadataObject("schema", schema));
+                if (tables.getString("TABLE_CAT") != null) {
+                    tableMetadata.put(makeMetadataObject("catalog", tables.getString("TABLE_CAT")));
+                }
+                tableMetadata.put(makeMetadataObject("type", tables.getString("TABLE_TYPE")));
+                if (tables.getString("REMARKS") != null) {
+                    tableMetadata.put(makeMetadataObject("description", tables.getString("REMARKS")));
                 }
 
+                ResultSet pks = dbMeta.getPrimaryKeys(null, schema, table);
+                while (pks.next()) {
+                    pkList.add(pks.getString("COLUMN_NAME"));
+                }
+            }
+            JSONObject manifest = new JSONObject();
+            JSONObject allColumnMetadata = new JSONObject();
+
+            for (int i = 1; i <= rsMeta.getColumnCount(); i++) {
+                // just get table metadata for the first column (this may result in bs results for complicated queries)
                 JSONArray columnMetadata = new JSONArray();
                 String name = rsMeta.getColumnName(i);
                 columnNames.put(name);
@@ -176,7 +185,9 @@ public class Application {
             manifest.put("columnMetadata", allColumnMetadata);
             manifest.put("destination", outputTable);
             manifest.put("incremental", incremental);
-            manifest.put("primaryKey", primaryKey);
+            if (primaryKey != null) {
+                manifest.put("primaryKey", primaryKey);
+            }
             try (FileWriter file = new FileWriter(outputFile + ".manifest")) {
                 file.write(manifest.toString());
                 System.out.println("Successfully Copied JSON Object to File...");
