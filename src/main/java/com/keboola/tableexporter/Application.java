@@ -1,6 +1,7 @@
 package com.keboola.tableexporter;
 
 import java.awt.*;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -105,6 +106,11 @@ public class Application {
             CsvWriter writer = new CsvWriter(outputFile, null);
             // write the result set to csv
             int rowCount = writer.write(rs, hasLobs);
+            // delete the data file if it is empty
+            if (rowCount == 0) {
+                File dataFile = new File(outputFile);
+                dataFile.delete();
+            }
             final long end = System.nanoTime();
             System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
             writer.close();
