@@ -97,7 +97,7 @@ public class BaseTest {
             connectDb();
             dropTableIfExists(tableName);
             int cnt = 0;
-            String headerSql = "create table clobtest (\"index\" integer, xml CLOB)";
+            String headerSql = "create table clobtest (\"index\" integer, xml CLOB, CONSTRAINT pk PRIMARY KEY (\"index\"))";
             Statement headerStatement = connection.createStatement();
             headerStatement.execute(headerSql);
 

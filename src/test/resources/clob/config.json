@@ -3,8 +3,8 @@
     "id": 333,
     "query": "SELECT * FROM clobtest",
     "table": {
-      "schema": "KEBOOLA_TESTING",
-      "tableName": "clobtest"
+      "schema": "SYSTEM",
+      "tableName": "CLOBTEST"
     },
     "outputFile": "/code/in.c-main.clobtest.csv",
     "outputTable": "in.c-main.clobtest",

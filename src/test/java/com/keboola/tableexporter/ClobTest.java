@@ -25,6 +25,7 @@ public class ClobTest extends BaseTest {
     {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("clob/clobtest.csv").toURI());
+        File expectedManifest = new File(classLoader.getResource("clob/clobtest.csv.manifest").toURI());
 
         Application app = new Application();
 
@@ -34,10 +35,15 @@ public class ClobTest extends BaseTest {
         app.main(args);
 
         File output = new File(outputFile);
+        File manifest = new File(outputFile + ".manifest");
 
         assertTrue(
             "Output file contents do not match expected",
             FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8")
+        );
+        assertTrue(
+                "Output file manifest does not match expected",
+                FileUtils.contentEqualsIgnoreEOL(expectedManifest, manifest, "UTF-8")
         );
     }
 }

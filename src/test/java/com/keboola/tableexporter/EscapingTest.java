@@ -27,6 +27,7 @@ public class EscapingTest extends BaseTest {
     {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("escaping/escaping.csv").toURI());
+        File expectedManifest = new File(classLoader.getResource("escaping/escaping.csv.manifest").toURI());
 
         Application app = new Application();
 
@@ -36,8 +37,9 @@ public class EscapingTest extends BaseTest {
         app.main(args);
 
         File output = new File(outputFile);
-
-        assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
+        File manifest = new File(outputFile + ".manifest");
+        assertTrue("The data files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
+        assertTrue("The manifests differ!", FileUtils.contentEqualsIgnoreEOL(expectedManifest, manifest, "UTF-8"));
     }
 
     @Test
