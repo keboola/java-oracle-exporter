@@ -92,7 +92,7 @@ public class BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         Reader reader = Files.newBufferedReader(Paths.get(classLoader.getResource(testFile).toURI()));
 
-        CSVParser csvParser = new CSVParser(reader, CSVFormat.RFC4180.withFirstRecordAsHeader().withTrim());
+        CSVParser csvParser = new CSVParser(reader, CSVFormat.RFC4180.withTrim());
         try {
             connectDb();
             dropTableIfExists(tableName);
@@ -119,7 +119,7 @@ public class BaseTest {
         }
     }
 
-    protected void setupDataTable(String testFile, String tableName) throws Exception {
+    protected void setupDataTable(String testFile, String tableName, String[] columnNames) throws Exception {
 
         dbPort = System.getenv("DB_PORT");
         dbHost = System.getenv("DB_HOST");
@@ -132,18 +132,17 @@ public class BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         Reader reader = Files.newBufferedReader(Paths.get(classLoader.getResource(testFile).toURI()));
 
-        CSVParser csvParser = new CSVParser(reader, CSVFormat.RFC4180.withFirstRecordAsHeader().withTrim());
+        CSVParser csvParser = new CSVParser(reader, CSVFormat.RFC4180.withTrim());
         try {
             connectDb();
             dropTableIfExists(tableName);
             int cnt = 0;
-            Map<String, Integer> header = csvParser.getHeaderMap();
             String headerSql = "create table " + tableName + " (";
-            for (Map.Entry<String, Integer> entry : header.entrySet()) {
+            for (int i = 0; i < columnNames.length; i++) {
                 if (cnt > 0) {
                     headerSql += ", ";
                 }
-                headerSql += "\"" + entry.getKey() + "\" varchar(64)";
+                headerSql += "\"" + columnNames[i] + "\" varchar(64)";
                 cnt++;
             }
             headerSql += ")";

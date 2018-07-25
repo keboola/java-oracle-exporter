@@ -17,7 +17,8 @@ public class EscapingTest extends BaseTest {
 
     @Before
     public void setupTables() throws Exception {
-        super.setupDataTable("escaping/escaping.csv", "escaping");
+        String[] colNames = {"col1", "col2"};
+        super.setupDataTable("escaping/escaping.csv", "escaping", colNames);
     }
 
     @Test
