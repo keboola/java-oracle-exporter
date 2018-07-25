@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 
@@ -43,7 +44,7 @@ public class EscapingTest extends BaseTest {
     public void testEmptyResultSet() throws IOException, URISyntaxException, ApplicationException
     {
         ClassLoader classLoader = getClass().getClassLoader();
-        File expectedFile = new File(classLoader.getResource("escaping/emptyResult.csv").toURI());
+        File expectedManifest = new File(classLoader.getResource("escaping/emptyResult.csv.manifest").toURI());
 
         Application app = new Application();
 
@@ -52,8 +53,10 @@ public class EscapingTest extends BaseTest {
         String[] args = {tmpConfig};
         app.main(args);
 
-        File output = new File(outputFile);
+        File manifest = new File(outputFile + ".manifest");
+        File outputData = new File(outputFile);
+        assertFalse(outputData.exists());
 
-        assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
+        assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedManifest, manifest, "UTF-8"));
     }
 }
