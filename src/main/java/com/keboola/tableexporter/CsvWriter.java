@@ -20,7 +20,7 @@ public class CsvWriter {
     /**
      * Flush the writer after this many records are printed
      */
-    private static final int FLUSH_LEVEL = 50000;
+    private static final int FLUSH_LEVEL = 100000;
 
     private CSVPrinter csvPrinter;
     private BufferedWriter writer;
@@ -40,7 +40,7 @@ public class CsvWriter {
                 );
             }
         } catch (IOException e) {
-            throw new CsvException("Failed opening output file.", e);
+            throw new CsvException("Failed opening output file."  + e.getMessage(), e);
         }
     }
 
@@ -52,9 +52,9 @@ public class CsvWriter {
                 return this.printRecords(resultSet);
             }
         } catch (SQLException e) {
-            throw new UserException("Failed to write csv ", e);
+            throw new UserException("Failed to write csv " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new UserException("Failed to write csv ", e);
+            throw new UserException("Failed to write csv " + e.getMessage(), e);
         }
     }
 
@@ -68,13 +68,12 @@ public class CsvWriter {
                 }
                 csvPrinter.println();
                 rowCount++;
-                this.flushIfRequired(rowCount);
             }
             return rowCount;
         } catch (SQLException e) {
-            throw new UserException("Failed to write csv ", e);
+            throw new UserException("Failed to write csv " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new UserException("Failed to write csv ", e);
+            throw new UserException("Failed to write csv " + e.getMessage(), e);
         }
     }
 
@@ -112,7 +111,7 @@ public class CsvWriter {
             csvPrinter.close();
             writer.close();
         } catch (IOException e) {
-            throw new CsvException("Failed closing file writer", e);
+            throw new CsvException("Failed closing file writer"  + e.getMessage(), e);
         }
     }
 
