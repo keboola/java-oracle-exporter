@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
@@ -50,16 +51,21 @@ public class Application {
             throw new ApplicationException("Driver error", ex);
         }
         StringBuilder connectionString = new StringBuilder();
+        Properties connectionProps = new Properties();
+        connectionProps.put("user", dbUser);
+        connectionProps.put("password", dbPassword);
+        connectionProps.put("useFetchSizeWithLongColumn", "true");
+        connectionProps.put("defaultRowPrefetch", "20");
         try {
             connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
             System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost);
-            connection = DriverManager.getConnection(connectionString.toString(), dbUser, dbPassword);
+            connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
         } catch (SQLException ex) {
             connectionString.setLength(0);
             connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append("/").append(dbName);
             try {
                 System.out.println("Trying again as service name instead of SID. Previous error was: " + ex.getMessage());
-                connection = DriverManager.getConnection(connectionString.toString(), dbUser, dbPassword);
+                connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException e) {
                 throw new UserException("Connection error: " + e.getMessage(), e);
             }
