@@ -20,7 +20,7 @@ public class CsvWriter {
     /**
      * Flush the writer after this many records are printed
      */
-    private static final int FLUSH_LEVEL = 100000;
+    private static final int FLUSH_LEVEL = 70000;
 
     private CSVPrinter csvPrinter;
     private BufferedWriter writer;

@@ -55,7 +55,7 @@ public class Application {
         connectionProps.put("user", dbUser);
         connectionProps.put("password", dbPassword);
         connectionProps.put("useFetchSizeWithLongColumn", "true");
-        connectionProps.put("defaultRowPrefetch", "20");
+        connectionProps.put("defaultRowPrefetch", "50");
         try {
             connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
             System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost);
