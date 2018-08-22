@@ -170,7 +170,9 @@ public class BaseTest {
 
     @AfterClass
     public static void closeConnection() throws SQLException {
-        connection.close();
+        try {
+            connection.close();
+        } catch (NullPointerException e) { }
     }
 
 
