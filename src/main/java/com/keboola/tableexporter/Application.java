@@ -22,6 +22,7 @@ public class Application {
     private static String query;
     private static String outputFile;
     private static Connection connection;
+    private static boolean includeHeader;
     
     private static void readConfigFile(String configFile) throws ApplicationException {
         System.out.println("Processing configuration file " + configFile);
@@ -89,7 +90,7 @@ public class Application {
                 }
             }
             String[] headerArr = new String[header.size()];
-            CsvWriter writer = new CsvWriter(outputFile, header.toArray(header.toArray(headerArr)));
+            CsvWriter writer = new CsvWriter(outputFile, (includeHeader) ? header.toArray(header.toArray(headerArr)) : null);
             // write the result set to csv
             int rowCount = writer.write(rs, hasLobs);
             final long end = System.nanoTime();
@@ -106,6 +107,10 @@ public class Application {
     public static void main(String[] args) {
         try {
             readConfigFile(args[0]);
+            includeHeader = true;
+            if (args.length > 1) {
+                includeHeader = Boolean.parseBoolean(args[1]);
+            }
             connectDb();
             fetchData();
             System.out.println("All done");
