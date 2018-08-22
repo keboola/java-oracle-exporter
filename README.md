@@ -17,3 +17,7 @@ jar usage:
 ```
 java -jar table-exporter.jar /path/to/my/configFile.json
 ```
+
+arguments:
+[0] - path to configuration file
+[1] - boolean includeHeaders
