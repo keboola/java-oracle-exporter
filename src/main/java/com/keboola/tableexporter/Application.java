@@ -138,7 +138,7 @@ public class Application {
         } finally {
             try {
                 connection.close();
-            } catch (SQLException e) {}
+            } catch (Throwable e) {}
         }
     }
 }
