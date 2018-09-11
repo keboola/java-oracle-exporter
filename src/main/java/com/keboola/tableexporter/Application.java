@@ -114,7 +114,10 @@ public class Application {
             connectDb();
             fetchData();
             System.out.println("All done");
-        } catch (ApplicationException ex) {
+        } catch (UserException ex) {
+            System.err.println(ex.getMessage());
+            System.exit(1);
+        }catch (ApplicationException ex) {
             System.err.println(ex.getMessage());
             StackTraceElement[] elements = ex.getStackTrace();
             for (int i = 1; i < elements.length; i++) {
@@ -131,11 +134,11 @@ public class Application {
                 System.err.println("\tat " + s.getClassName() + "." + s.getMethodName()
                    + "(" + s.getFileName() + ":" + s.getLineNumber() + ")");
             }
-            
             System.exit(2);
-        } catch (UserException ex) {
-            System.err.println(ex.getMessage());
-            System.exit(1);
+        } finally {
+            try {
+                connection.close();
+            } catch (Throwable e) {}
         }
     }
 }
