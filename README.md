@@ -20,5 +20,5 @@ java -jar table-exporter.jar export /path/to/my/configFile.json
 
 arguments:
 [0] - action (one of "export", "getTables", "testConnecgion")
-[1] - [only valid for export action] path to configuration file
+[1] - path to configuration file
 [2] - [only valid for export action] boolean includeHeaders
