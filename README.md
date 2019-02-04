@@ -15,9 +15,10 @@ docker-compose run --rm tests
 
 jar usage:
 ```
-java -jar table-exporter.jar /path/to/my/configFile.json
+java -jar table-exporter.jar export /path/to/my/configFile.json
 ```
 
 arguments:
-[0] - path to configuration file
-[1] - boolean includeHeaders
+[0] - action (one of "export", "getTables", "testConnecgion")
+[1] - [only valid for export action] path to configuration file
+[2] - [only valid for export action] boolean includeHeaders
