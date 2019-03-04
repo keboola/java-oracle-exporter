@@ -17,6 +17,8 @@ import org.json.JSONObject;
 public class Application {
 
     public final static String OUTPUT_DIR = "output/";
+    public final static String TABLES_OUTPUT_FILE = "tables.json";
+    public final static String DATA_OUTPUT_FILE = "data.csv";
 
     private static String action;
     private static String dbPort;
@@ -47,7 +49,6 @@ public class Application {
         dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
         dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
         query = obj.getJSONObject("parameters").getString("query");
-        outputFile = obj.getJSONObject("parameters").getString("outputFile");
     }    
     
     private static void connectDb() throws ApplicationException, UserException {
@@ -95,13 +96,13 @@ public class Application {
                 }
             }
             String[] headerArr = new String[header.size()];
-            CsvWriter writer = new CsvWriter(OUTPUT_DIR + outputFile, (includeHeader) ? header.toArray(headerArr) : null);
+            CsvWriter writer = new CsvWriter(OUTPUT_DIR + DATA_OUTPUT_FILE, (includeHeader) ? header.toArray(headerArr) : null);
             // write the result set to csv
             int rowCount = writer.write(rs, hasLobs);
             final long end = System.nanoTime();
             System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
             writer.close();
-            System.out.println("Data File " + outputFile + " was created successfully.");
+            System.out.println("The output data File was created successfully.");
         } catch (SQLException ex) {
             throw new UserException("SQL Exception: " + ex.getMessage(), ex);
         } catch (CsvException ex) {
@@ -226,7 +227,7 @@ public class Application {
                 curObject.put("columns", curColumns);
                 output.put(curTable, curObject);
             }
-            try (FileWriter file = new FileWriter(outputFile)) {
+            try (FileWriter file = new FileWriter(OUTPUT_DIR + TABLES_OUTPUT_FILE)) {
                 file.write(output.toString());
                 System.out.println("Successfully Copied JSON Table Listing to File...");
             } catch (IOException ioException) {
