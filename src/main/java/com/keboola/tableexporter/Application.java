@@ -12,8 +12,6 @@ import java.util.Properties;
 import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
 import com.keboola.tableexporter.exception.UserException;
-import com.sun.jna.platform.win32.Netapi32Util;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Application {
