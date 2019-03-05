@@ -29,11 +29,11 @@ public class ClobTest extends BaseTest {
         Application app = new Application();
 
         URI configUri = classLoader.getResource("clob/config.json").toURI();
-        String tmpConfig = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
-        String[] args = {tmpConfig};
+        createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString(), "tmp.json");
+        String[] args = {"tmp.json"};
         app.main(args);
 
-        File output = new File(outputFile);
+        File output = new File(Application.OUTPUT_DIR + Application.DATA_OUTPUT_FILE);
 
         assertTrue(
             "Output file contents do not match expected",
