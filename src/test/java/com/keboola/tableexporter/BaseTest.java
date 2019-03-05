@@ -36,7 +36,7 @@ public class BaseTest {
         writeJsonConfigToFile(baseObj, outputConfigFile);
     }
 
-    private JSONObject getJsonConfigFromFile(String fileName) throws IOException, ApplicationException {
+    private JSONObject getJsonConfigFromFile(String fileName) throws ApplicationException {
         String jsonString;
         try {
             byte[] encoded;
