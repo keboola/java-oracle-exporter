@@ -8,10 +8,12 @@ build:
 docker-compose build
 ```
 
-run tests:
-```
-docker-compose run --rm tests
-```
+### Tests ###
+- build the test DB:
+     - `git clone https://github.com/wnameless/docker-oracle-xe-11g build/oracle`
+     - `docker build -t wnameless/oracle-xe-11g build/oracle`
+- run tests
+    - `docker-compose run --rm tests`
 
 jar usage:
 - export command
