@@ -27,7 +27,6 @@ public class Application {
     private static String dbPassword;
     private static String dbName;
     private static String query;
-    private static String outputFile;
     private static Connection connection;
     private static boolean includeHeader;
     
@@ -48,7 +47,9 @@ public class Application {
         dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
         dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
         dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
-        query = obj.getJSONObject("parameters").getString("query");
+        if (obj.getJSONObject("parameters").has("query")) {
+            query = obj.getJSONObject("parameters").getString("query");
+        }
     }    
     
     private static void connectDb() throws ApplicationException, UserException {
@@ -162,8 +163,7 @@ public class Application {
                     "        WHERE AC.CONSTRAINT_TYPE IN ('P', 'U', 'R')\n" +
                     "    )\n" +
                     "    REFCOLS ON COLS.TABLE_NAME = REFCOLS.TABLE_NAME\n" +
-                    "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME\n" +
-                    "SQL;";
+                    "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME\n";
             ResultSet resultSet = stmt.executeQuery(tableListQuery);
             JSONObject output = new JSONObject();
             while(resultSet.next()) {
@@ -241,6 +241,7 @@ public class Application {
     public static void main(String[] args) {
         try {
             action = args[0];
+            System.out.println("executing action " + action);
             readConfigFile(args[1]);
             switch (action) {
                 case "testConnection":
