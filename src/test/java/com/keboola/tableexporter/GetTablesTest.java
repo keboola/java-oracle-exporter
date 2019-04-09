@@ -25,7 +25,7 @@ public class GetTablesTest extends BaseTest {
 
         super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString(), "tmp.json");
 
-        String[] args = {"tmp.json"};
+        String[] args = {"getTables", "tmp.json"};
         app.main(args);
 
         File output = new File("output/tables.json");
