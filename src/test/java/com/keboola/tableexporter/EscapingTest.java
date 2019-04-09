@@ -30,7 +30,7 @@ public class EscapingTest extends BaseTest {
 
         URI configUri = classLoader.getResource("escaping/config.json").toURI();
         createTemporaryConfigFile("tmp.json", Paths.get(configUri).toAbsolutePath().toString());
-        String[] args = {"tmp.json"};
+        String[] args = {"export", "tmp.json"};
         app.main(args);
 
         File output = new File(Application.OUTPUT_DIR + Application.DATA_OUTPUT_FILE);
@@ -48,7 +48,7 @@ public class EscapingTest extends BaseTest {
 
         URI configUri = classLoader.getResource("escaping/emptyResultConfig.json").toURI();
         createTemporaryConfigFile("tmp.json", Paths.get(configUri).toAbsolutePath().toString());
-        String[] args = {"tmp.json"};
+        String[] args = {"export", "tmp.json"};
         app.main(args);
 
         File output = new File(Application.OUTPUT_DIR + Application.DATA_OUTPUT_FILE);
@@ -66,7 +66,7 @@ public class EscapingTest extends BaseTest {
 
         URI configUri = classLoader.getResource("escaping/config.json").toURI();
         createTemporaryConfigFile("tmp.json", Paths.get(configUri).toAbsolutePath().toString());
-        String[] args = {"tmp.json", "false"};
+        String[] args = {"export", "tmp.json", "false"};
         app.main(args);
 
         File output = new File(Application.OUTPUT_DIR + Application.DATA_OUTPUT_FILE);
