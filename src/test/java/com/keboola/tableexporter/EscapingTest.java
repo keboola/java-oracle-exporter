@@ -29,12 +29,12 @@ public class EscapingTest extends BaseTest {
         Application app = new Application();
 
         URI configUri = classLoader.getResource("escaping/config.json").toURI();
-        createTemporaryConfigFile("tmp.json", Paths.get(configUri).toAbsolutePath().toString());
+        createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString(), "tmp.json");
         String[] args = {"export", "tmp.json"};
         app.main(args);
 
         File output = new File(Application.OUTPUT_DIR + Application.DATA_OUTPUT_FILE);
-
+        
         assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
     }
 
@@ -47,7 +47,7 @@ public class EscapingTest extends BaseTest {
         Application app = new Application();
 
         URI configUri = classLoader.getResource("escaping/emptyResultConfig.json").toURI();
-        createTemporaryConfigFile("tmp.json", Paths.get(configUri).toAbsolutePath().toString());
+        createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString(), "tmp.json");
         String[] args = {"export", "tmp.json"};
         app.main(args);
 
@@ -65,7 +65,7 @@ public class EscapingTest extends BaseTest {
         Application app = new Application();
 
         URI configUri = classLoader.getResource("escaping/config.json").toURI();
-        createTemporaryConfigFile("tmp.json", Paths.get(configUri).toAbsolutePath().toString());
+        createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString(), "tmp.json");
         String[] args = {"export", "tmp.json", "false"};
         app.main(args);
 
