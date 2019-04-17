@@ -5,8 +5,10 @@ import com.keboola.tableexporter.exception.UserException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.junit.AfterClass;
+import org.junit.Before;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -174,6 +176,11 @@ public class BaseTest {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    @Before
+    public void cleanOutputDir() throws IOException {
+        FileUtils.cleanDirectory(new File(Application.OUTPUT_DIR));
     }
 
     @AfterClass
