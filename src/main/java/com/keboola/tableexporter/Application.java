@@ -163,7 +163,7 @@ public class Application {
                     "        WHERE AC.CONSTRAINT_TYPE IN ('P', 'U', 'R')\n" +
                     "    )\n" +
                     "    REFCOLS ON COLS.TABLE_NAME = REFCOLS.TABLE_NAME\n" +
-                    "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME\n";
+                    "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME";
             ResultSet resultSet = stmt.executeQuery(tableListQuery);
             JSONObject output = new JSONObject();
             while(resultSet.next()) {
@@ -210,7 +210,7 @@ public class Application {
                     case "R":
                         currentColumn.put("foreignKeyName", resultSet.getString("CONSTRAINT_NAME"));
                         currentColumn.put("foreignKeyTable", resultSet.getString("R_OWNER"));
-                        currentColumn.put("foreignKeyRef", resultSet.getString("$_CONSTRAINT_NAME"));
+                        currentColumn.put("foreignKeyRef", resultSet.getString("R_CONSTRAINT_NAME"));
                         break;
                     case "P":
                         currentColumn.put("primaryKey", true);
