@@ -1,7 +1,8 @@
 package com.keboola.tableexporter;
 
 import com.keboola.tableexporter.exception.UserException;
-import org.json.JSONObject;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.*;
 
 public class MetaFetcher {
 
@@ -74,10 +76,10 @@ public class MetaFetcher {
                     "    REFCOLS ON COLS.TABLE_NAME = REFCOLS.TABLE_NAME\n" +
                     "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME";
             ResultSet resultSet = stmt.executeQuery(tableListQuery);
-            JSONObject output = new JSONObject();
+            HashMap<String, JSONObject> output = new HashMap<String, JSONObject>();
             while(resultSet.next()) {
                 String curTable = resultSet.getString("OWNER") + "." + resultSet.getString("TABLE_NAME");
-                if (!output.has(curTable)) {
+                if (!output.containsKey(curTable)) {
                     JSONObject tableData = new JSONObject();
                     tableData.put("name", resultSet.getString("TABLE_NAME"));
                     tableData.put("tablespaceName", resultSet.getString("TABLESPACE_NAME"));
@@ -89,13 +91,14 @@ public class MetaFetcher {
                     output.put(curTable, tableData);
                 }
 
-                JSONObject curObject = output.getJSONObject(curTable);
-                if (!curObject.has("columns")) {
-                    curObject.put("columns", new JSONObject());
+                JSONObject curObject = new JSONObject(output.get(curTable));
+                if (!curObject.containsKey("columns")) {
+                    curObject.put("columns", new HashMap<Integer, JSONObject>());
                 }
-                JSONObject curColumns = curObject.getJSONObject("columns");
-                String curColumnIndex = String.valueOf(resultSet.getInt("COLUMN_ID") - 1);
-                if (!curColumns.has(curColumnIndex)) {
+                HashMap<Integer, JSONObject> curColumns = new HashMap((HashMap) curObject.get("columns"));
+
+                Integer curColumnIndex = resultSet.getInt("COLUMN_ID") - 1;
+                if (!curColumns.containsKey(curColumnIndex)) {
                     JSONObject columnData = new JSONObject();
                     String length = resultSet.getString("DATA_LENGTH");
                     if (resultSet.getString("DATA_PRECISION") != null
@@ -114,7 +117,7 @@ public class MetaFetcher {
                     curColumns.put(curColumnIndex, columnData);
                     curObject.put("columns", curColumns);
                 }
-                JSONObject currentColumn = curColumns.getJSONObject(curColumnIndex);
+                JSONObject currentColumn = curColumns.get(curColumnIndex);
                 if (resultSet.getString("CONSTRAINT_TYPE") != null) {
                     switch (resultSet.getString("CONSTRAINT_TYPE")) {
                         case "R":
@@ -139,7 +142,24 @@ public class MetaFetcher {
                 output.put(curTable, curObject);
             }
             try (FileWriter file = new FileWriter(Application.OUTPUT_DIR + TABLES_OUTPUT_FILE)) {
-                file.write(output.toString());
+                JSONArray outputArray = new JSONArray();
+                Iterator it = output.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry table = (Map.Entry)it.next();
+                    JSONArray columnsArray = new JSONArray();
+                    JSONObject tableJson = new JSONObject((Map) table.getValue());
+                    HashMap<Integer, JSONObject> columns = (HashMap<Integer, JSONObject>) tableJson.get("columns");
+                    Iterator columnsIterator = columns.entrySet().iterator();
+                    while (columnsIterator.hasNext()) {
+                        Map.Entry column = (Map.Entry)columnsIterator.next();
+                        columnsArray.add(column.getValue());
+                        columnsIterator.remove();
+                    }
+                    tableJson.put("columns", columnsArray);
+                    outputArray.add(tableJson);
+                    it.remove();
+                }
+                file.write(outputArray.toJSONString());
                 System.out.println("Successfully Copied JSON Table Listing to File...");
             } catch (IOException ioException) {
                 throw new UserException("IO Exception: " + ioException.getMessage(), ioException);
