@@ -38,6 +38,17 @@ public class BaseTest {
         writeJsonConfigToFile(baseObj, outputConfigFile);
     }
 
+    protected void createTemporaryConfigFileWithInvalidCredentials(String inputConfigFile, String outputConfigFile) throws IOException, ApplicationException {
+        JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
+        JSONObject paramsObj = baseObj.getJSONObject("parameters");
+        JSONObject dbObj = getDbJsonNode();
+        dbObj.put("#password", "invalid_password");
+        paramsObj.put("db", dbObj);
+        baseObj.remove("parameters");
+        baseObj.put("parameters", paramsObj);
+        writeJsonConfigToFile(baseObj, outputConfigFile);
+    }
+
     private JSONObject getJsonConfigFromFile(String fileName) throws ApplicationException {
         String jsonString;
         try {
