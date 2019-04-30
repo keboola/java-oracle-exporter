@@ -1,5 +1,7 @@
 package com.keboola.tableexporter;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.keboola.tableexporter.exception.UserException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -76,11 +78,11 @@ public class MetaFetcher {
                     "    REFCOLS ON COLS.TABLE_NAME = REFCOLS.TABLE_NAME\n" +
                     "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME";
             ResultSet resultSet = stmt.executeQuery(tableListQuery);
-            HashMap<String, JSONObject> output = new HashMap<String, JSONObject>();
+            TreeMap output = new TreeMap();
             while(resultSet.next()) {
                 String curTable = resultSet.getString("OWNER") + "." + resultSet.getString("TABLE_NAME");
                 if (!output.containsKey(curTable)) {
-                    JSONObject tableData = new JSONObject();
+                    LinkedHashMap tableData = new LinkedHashMap();
                     tableData.put("name", resultSet.getString("TABLE_NAME"));
                     tableData.put("tablespaceName", resultSet.getString("TABLESPACE_NAME"));
                     tableData.put("schema", resultSet.getString("OWNER"));
@@ -91,15 +93,15 @@ public class MetaFetcher {
                     output.put(curTable, tableData);
                 }
 
-                JSONObject curObject = new JSONObject(output.get(curTable));
+                LinkedHashMap curObject = new LinkedHashMap((HashMap) output.get(curTable));
                 if (!curObject.containsKey("columns")) {
-                    curObject.put("columns", new HashMap<Integer, JSONObject>());
+                    curObject.put("columns", new TreeMap<Integer, JSONObject>());
                 }
-                HashMap<Integer, JSONObject> curColumns = new HashMap((HashMap) curObject.get("columns"));
+                TreeMap curColumns = new TreeMap((TreeMap) curObject.get("columns"));
 
                 Integer curColumnIndex = resultSet.getInt("COLUMN_ID") - 1;
                 if (!curColumns.containsKey(curColumnIndex)) {
-                    JSONObject columnData = new JSONObject();
+                    LinkedHashMap columnData = new LinkedHashMap();
                     String length = resultSet.getString("DATA_LENGTH");
                     if (resultSet.getString("DATA_PRECISION") != null
                             && resultSet.getString("DATA_SCALE") != null)
@@ -117,7 +119,7 @@ public class MetaFetcher {
                     curColumns.put(curColumnIndex, columnData);
                     curObject.put("columns", curColumns);
                 }
-                JSONObject currentColumn = curColumns.get(curColumnIndex);
+                LinkedHashMap currentColumn = (LinkedHashMap) curColumns.get(curColumnIndex);
                 if (resultSet.getString("CONSTRAINT_TYPE") != null) {
                     switch (resultSet.getString("CONSTRAINT_TYPE")) {
                         case "R":
@@ -147,19 +149,20 @@ public class MetaFetcher {
                 while (it.hasNext()) {
                     Map.Entry table = (Map.Entry)it.next();
                     JSONArray columnsArray = new JSONArray();
-                    JSONObject tableJson = new JSONObject((Map) table.getValue());
-                    HashMap<Integer, JSONObject> columns = (HashMap<Integer, JSONObject>) tableJson.get("columns");
+                    LinkedHashMap tableMap = new LinkedHashMap((LinkedHashMap) table.getValue());
+                    TreeMap<Integer, JSONObject> columns = (TreeMap<Integer, JSONObject>) tableMap.get("columns");
                     Iterator columnsIterator = columns.entrySet().iterator();
                     while (columnsIterator.hasNext()) {
                         Map.Entry column = (Map.Entry)columnsIterator.next();
                         columnsArray.add(column.getValue());
                         columnsIterator.remove();
                     }
-                    tableJson.put("columns", columnsArray);
-                    outputArray.add(tableJson);
+                    tableMap.put("columns", columnsArray);
+                    outputArray.add(tableMap);
                     it.remove();
                 }
-                file.write(outputArray.toJSONString());
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                file.write(gson.toJson(outputArray));
                 System.out.println("Successfully Copied JSON Table Listing to File...");
             } catch (IOException ioException) {
                 throw new UserException("IO Exception: " + ioException.getMessage(), ioException);
