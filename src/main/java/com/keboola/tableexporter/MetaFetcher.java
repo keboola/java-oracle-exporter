@@ -110,6 +110,7 @@ public class MetaFetcher {
                                 + "," + resultSet.getString("DATA_SCALE");
                     }
                     columnData.put("name", resultSet.getString("COLUMN_NAME"));
+                    columnData.put("sanitizedName", columnNameSanitizer(resultSet.getString("COLUMN_NAME")));
                     columnData.put("type", resultSet.getString("DATA_TYPE"));
                     columnData.put("nullable", resultSet.getString("NULLABLE") == "Y" ? true : false);
                     columnData.put("length", length);
@@ -170,5 +171,25 @@ public class MetaFetcher {
         } catch (SQLException sqlException) {
             throw new UserException("SQL Exception: " + sqlException.getMessage(), sqlException);
         }
+    }
+
+    private String columnNameSanitizer(String columnName)
+    {
+        ArrayList<String> sysColumns = new ArrayList<>(Arrays.asList(
+                "oid",
+                "tableoid",
+                "xmin",
+                "cmin",
+                "xmax",
+                "cmax",
+                "ctid"
+        ));
+
+        String replaced = columnName.replaceAll("/[^a-z0-9_]/", columnName);
+        replaced.replace("^_", "");
+        if (sysColumns.contains(replaced.toLowerCase())) {
+            return replaced + "_";
+        }
+        return replaced;
     }
 }
