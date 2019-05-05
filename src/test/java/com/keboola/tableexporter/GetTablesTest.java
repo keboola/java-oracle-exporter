@@ -21,7 +21,7 @@ public class GetTablesTest extends BaseTest {
 
         Application app = new Application();
 
-        URI configUri = classLoader.getResource("getTables/emptyConfig.json").toURI();
+        URI configUri = classLoader.getResource("getTables/config.json").toURI();
 
         super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString(), "tmp.json");
 
