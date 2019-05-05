@@ -27,11 +27,15 @@ public class BaseTest {
     private static String dbUser;
     private static String dbPassword;
     private static String dbDatabase;
+    protected static String outputFile;
     private static Connection connection;
 
     protected void createTemporaryConfigFile(String inputConfigFile, String outputConfigFile) throws IOException, ApplicationException {
         JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
         JSONObject paramsObj = baseObj.getJSONObject("parameters");
+        if (paramsObj.has("outputFile")) {
+            outputFile = paramsObj.getString("outputFile");
+        }
         paramsObj.put("db", getDbJsonNode());
         baseObj.remove("parameters");
         baseObj.put("parameters", paramsObj);
@@ -187,11 +191,6 @@ public class BaseTest {
         } catch (Exception e) {
             throw e;
         }
-    }
-
-    @Before
-    public void cleanOutputDir() throws IOException {
-        FileUtils.cleanDirectory(new File(Application.OUTPUT_DIR));
     }
 
     @AfterClass

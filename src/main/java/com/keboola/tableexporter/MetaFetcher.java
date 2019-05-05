@@ -144,7 +144,7 @@ public class MetaFetcher {
                 curObject.put("columns", curColumns);
                 output.put(curTable, curObject);
             }
-            try (FileWriter file = new FileWriter(Application.OUTPUT_DIR + TABLES_OUTPUT_FILE)) {
+            try (FileWriter file = new FileWriter(TABLES_OUTPUT_FILE)) {
                 JSONArray outputArray = new JSONArray();
                 Iterator it = output.entrySet().iterator();
                 while (it.hasNext()) {

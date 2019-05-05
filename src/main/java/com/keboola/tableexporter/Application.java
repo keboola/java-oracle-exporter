@@ -16,9 +16,6 @@ import org.json.JSONObject;
 
 public class Application {
 
-    public final static String OUTPUT_DIR = "output/";
-    public final static String DATA_OUTPUT_FILE = "data.csv";
-
     private static String action;
     private static String dbPort;
     private static String dbHost;
@@ -26,6 +23,7 @@ public class Application {
     private static String dbPassword;
     private static String dbName;
     private static String query;
+    private static String outputFile;
     private static Connection connection;
     private static boolean includeHeader;
     
@@ -46,6 +44,9 @@ public class Application {
         dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
         dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
         dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
+        if (obj.getJSONObject("parameters").has("outputFile")) {
+            outputFile = obj.getJSONObject("parameters").getString("outputFile");
+        }
         if (obj.getJSONObject("parameters").has("query")) {
             query = obj.getJSONObject("parameters").getString("query");
         }
@@ -96,7 +97,7 @@ public class Application {
                 }
             }
             String[] headerArr = new String[header.size()];
-            CsvWriter writer = new CsvWriter(OUTPUT_DIR + DATA_OUTPUT_FILE, (includeHeader) ? header.toArray(headerArr) : null);
+            CsvWriter writer = new CsvWriter(outputFile, (includeHeader) ? header.toArray(headerArr) : null);
             // write the result set to csv
             int rowCount = writer.write(rs, hasLobs);
             final long end = System.nanoTime();

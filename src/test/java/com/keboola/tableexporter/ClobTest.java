@@ -33,7 +33,7 @@ public class ClobTest extends BaseTest {
         String[] args = {"export", "tmp.json"};
         app.main(args);
 
-        File output = new File(Application.OUTPUT_DIR + Application.DATA_OUTPUT_FILE);
+        File output = new File(outputFile);
 
         assertTrue(
             "Output file contents do not match expected",

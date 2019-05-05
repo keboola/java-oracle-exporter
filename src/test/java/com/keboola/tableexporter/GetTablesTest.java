@@ -28,7 +28,7 @@ public class GetTablesTest extends BaseTest {
         String[] args = {"getTables", "tmp.json"};
         app.main(args);
 
-        File output = new File("output/tables.json");
+        File output = new File("tables.json");
 
         assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
     }

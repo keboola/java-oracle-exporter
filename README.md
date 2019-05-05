@@ -30,7 +30,7 @@ java -jar table-exporter.jar testConnection /path/to/my/configFile.json
 - getTables
 outputs file to `output/tables.json`
 ```
-java -jar table-exporter.jar testConnection /path/to/my/configFile.json
+java -jar table-exporter.jar getTables /path/to/my/configFile.json
 ```
 
 arguments:
