@@ -113,7 +113,11 @@ public class MetaFetcher {
                     columnData.put("name", resultSet.getString("COLUMN_NAME"));
                     columnData.put("sanitizedName", columnNameSanitizer(resultSet.getString("COLUMN_NAME")));
                     columnData.put("type", resultSet.getString("DATA_TYPE"));
-                    columnData.put("nullable", resultSet.getString("NULLABLE") == "Y" ? true : false);
+                    if (resultSet.getString("NULLABLE") == "Y") {
+                        columnData.put("nullable",  true);
+                    } else {
+                        columnData.put("nullable",  false);
+                    }
                     columnData.put("length", length);
                     columnData.put("ordinalPosition", resultSet.getInt("COLUMN_ID"));
                     columnData.put("primaryKey", false);
@@ -174,7 +178,7 @@ public class MetaFetcher {
         }
     }
 
-    private String columnNameSanitizer(String columnName)
+    public static String columnNameSanitizer(String columnName)
     {
         ArrayList<String> sysColumns = new ArrayList<>(Arrays.asList(
                 "oid",
@@ -185,7 +189,7 @@ public class MetaFetcher {
                 "cmax",
                 "ctid"
         ));
-
+        
         String replaced = columnName.replaceAll("/[^a-z0-9_]/", columnName);
         replaced.replace("^_", "");
         if (sysColumns.contains(replaced.toLowerCase())) {
