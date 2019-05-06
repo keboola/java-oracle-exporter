@@ -23,7 +23,8 @@ public class ColumnNameSanitizerTest {
 
         return Arrays.asList(new Object[][] {
                 { "normalName", "normalName" },
-                { "_underscore",  "underscore"},
+                { "name with spaces", "name_with_spaces" },
+                { "_underscore",  "underscore" },
                 { "s%mb-ol#s", "s_mb_ol_s" }
         });
     }
@@ -31,6 +32,6 @@ public class ColumnNameSanitizerTest {
     @Test
     public void columnNameSanitizeTest() {
         String sanitizedName = MetaFetcher.columnNameSanitizer(columnName);
-        Assert.assertEquals(sanitizedName, expectedSanitization);
+        Assert.assertEquals(expectedSanitization, sanitizedName);
     }
 }
