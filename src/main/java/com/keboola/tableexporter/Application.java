@@ -122,7 +122,7 @@ public class Application {
                     break;
                 case "getTables":
                     connectDb();
-                    MetaFetcher metaFetcher = new MetaFetcher(connection);
+                    MetaFetcher metaFetcher = new MetaFetcher(connection, outputFile);
                     metaFetcher.getTables();
                     break;
                 default:

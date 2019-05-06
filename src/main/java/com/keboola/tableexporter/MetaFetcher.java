@@ -16,11 +16,12 @@ import java.util.*;
 
 public class MetaFetcher {
 
-    public final static String TABLES_OUTPUT_FILE = "tables.json";
+    private String outputFile;
 
     private Connection connection;
 
-    public MetaFetcher(Connection connection) {
+    public MetaFetcher(Connection connection, String outputFile) {
+        this.outputFile = outputFile;
         this.connection = connection;
     }
 
@@ -144,7 +145,7 @@ public class MetaFetcher {
                 curObject.put("columns", curColumns);
                 output.put(curTable, curObject);
             }
-            try (FileWriter file = new FileWriter(TABLES_OUTPUT_FILE)) {
+            try (FileWriter file = new FileWriter(outputFile)) {
                 JSONArray outputArray = new JSONArray();
                 Iterator it = output.entrySet().iterator();
                 while (it.hasNext()) {
@@ -164,7 +165,7 @@ public class MetaFetcher {
                 }
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 file.write(gson.toJson(outputArray));
-                System.out.println("Successfully Copied JSON Table Listing to File...");
+                System.out.println("Successfully Copied JSON Table Listing to File " + outputFile);
             } catch (IOException ioException) {
                 throw new UserException("IO Exception: " + ioException.getMessage(), ioException);
             }
