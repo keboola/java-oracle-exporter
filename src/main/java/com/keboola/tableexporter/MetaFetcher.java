@@ -113,7 +113,7 @@ public class MetaFetcher {
                     columnData.put("name", resultSet.getString("COLUMN_NAME"));
                     columnData.put("sanitizedName", columnNameSanitizer(resultSet.getString("COLUMN_NAME")));
                     columnData.put("type", resultSet.getString("DATA_TYPE"));
-                    if (resultSet.getString("NULLABLE") == "Y") {
+                    if (resultSet.getString("NULLABLE").equals("Y")) {
                         columnData.put("nullable",  true);
                     } else {
                         columnData.put("nullable",  false);
