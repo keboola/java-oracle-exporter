@@ -190,7 +190,7 @@ public class MetaFetcher {
                 "ctid"
         ));
 
-        String replaced = columnName.replaceAll("[^A-Za-z0-9_]", "_");
+        String replaced = columnName.replaceAll("[^A-Za-z0-9_]+", "_");
         replaced = replaced.replaceFirst("^_", "");
         if (sysColumns.contains(replaced.toLowerCase())) {
             return replaced + "_";

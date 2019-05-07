@@ -25,7 +25,8 @@ public class ColumnNameSanitizerTest {
                 { "normalName", "normalName" },
                 { "name with spaces", "name_with_spaces" },
                 { "_underscore",  "underscore" },
-                { "s%mb-ol#s", "s_mb_ol_s" }
+                { "s%mb-ol#s", "s_mb_ol_s" },
+                { "_funnY#-col", "funnY_col" }
         });
     }
 
