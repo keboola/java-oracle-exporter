@@ -22,7 +22,7 @@ public class MetaFetcher {
         this.connection = connection;
     }
 
-    public void fetchTableListing(String outputFile) throws UserException {
+    public TreeMap fetchTableListing() throws UserException {
         System.out.println("Fetching table listing");
         try {
             Statement stmt = connection.createStatement();
@@ -90,7 +90,7 @@ public class MetaFetcher {
                 curColumns.put(curColumnIndex, currentColumn);
                 curObject.put("columns", curColumns);
                 output.put(curTable, curObject);
-                writeListingToJsonFile(output, outputFile);
+                return output;
             }
         } catch (SQLException sqlException) {
             throw new UserException("SQL Exception: " + sqlException.getMessage(), sqlException);
@@ -109,7 +109,7 @@ public class MetaFetcher {
         return length;
     }
 
-    private void writeListingToJsonFile(TreeMap output, String outputFile) throws UserException
+    public void writeListingToJsonFile(TreeMap output, String outputFile) throws UserException
     {
         try (FileWriter file = new FileWriter(outputFile)) {
             JSONArray outputArray = new JSONArray();

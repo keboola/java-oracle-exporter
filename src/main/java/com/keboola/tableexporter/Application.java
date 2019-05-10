@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
@@ -121,7 +122,8 @@ public class Application {
                 case "getTables":
                     connectDb();
                     MetaFetcher metaFetcher = new MetaFetcher(connection);
-                    metaFetcher.fetchTableListing(outputFile);
+                    TreeMap tables = metaFetcher.fetchTableListing();
+                    metaFetcher.writeListingToJsonFile(tables, outputFile);
                     break;
                 case "export":
                     includeHeader = true;
