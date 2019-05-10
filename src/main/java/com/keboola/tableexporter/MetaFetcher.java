@@ -1,7 +1,5 @@
 package com.keboola.tableexporter;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.keboola.tableexporter.exception.UserException;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -129,8 +127,7 @@ public class MetaFetcher {
                 outputArray.add(tableMap);
                 it.remove();
             }
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            file.write(gson.toJson(outputArray));
+            file.write(outputArray.toJSONString());
             System.out.println("Successfully Copied JSON Table Listing to File " + outputFile);
         } catch (IOException ioException) {
             throw new UserException("IO Exception: " + ioException.getMessage(), ioException);
