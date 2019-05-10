@@ -53,22 +53,19 @@ public class BaseTest {
         writeJsonConfigToFile(baseObj, outputConfigFile);
     }
 
-    private JSONObject getJsonConfigFromFile(String fileName) throws ApplicationException {
+    private JSONObject getJsonConfigFromFile(String fileName) throws IOException {
         String jsonString;
-        try {
-            byte[] encoded;
-            encoded = Files.readAllBytes(Paths.get(fileName));
-            jsonString = new String(encoded, "utf-8");
-        } catch (IOException ex) {
-            throw new ApplicationException("Configuration file is invalid", ex);
-        }
+
+        byte[] encoded;
+        encoded = Files.readAllBytes(Paths.get(fileName));
+        jsonString = new String(encoded, "utf-8");
+
         return new JSONObject(jsonString);
     }
 
     private void writeJsonConfigToFile(JSONObject jsonConfig, String fileName) throws IOException {
-        try (FileWriter file = new FileWriter(fileName)) {
-            file.write(jsonConfig.toString());
-        }
+        FileWriter file = new FileWriter(fileName);
+        file.write(jsonConfig.toString());
     }
 
     private JSONObject getDbJsonNode() {
