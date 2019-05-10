@@ -15,7 +15,6 @@ import org.json.JSONObject;
 
 public class Application {
 
-    private static String action;
     private static String dbPort;
     private static String dbHost;
     private static String dbUser;
@@ -112,7 +111,7 @@ public class Application {
     
     public static void main(String[] args) {
         try {
-            action = args[0];
+            String action = args[0];
             System.out.println("executing action " + action);
             readConfigFile(args[1]);
             switch (action) {
@@ -124,7 +123,7 @@ public class Application {
                     MetaFetcher metaFetcher = new MetaFetcher(connection, outputFile);
                     metaFetcher.getTables();
                     break;
-                default:
+                case "export":
                     includeHeader = true;
                     if (args.length > 2) {
                         includeHeader = Boolean.parseBoolean(args[2]);
@@ -132,6 +131,10 @@ public class Application {
                     connectDb();
                     fetchData();
                     break;
+                default:
+                    throw new UserException("Invalid action provided: '" + action + "' is not supported.");
+                    break;
+
             }
             System.out.println("All done");
         } catch (UserException ex) {
