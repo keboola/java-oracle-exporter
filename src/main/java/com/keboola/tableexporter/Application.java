@@ -101,7 +101,7 @@ public class Application {
             final long end = System.nanoTime();
             System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
             writer.close();
-            System.out.println("The output data File was created successfully.");
+            System.out.println("The output data file was created successfully.");
         } catch (SQLException ex) {
             throw new UserException("SQL Exception: " + ex.getMessage(), ex);
         } catch (CsvException ex) {
@@ -120,8 +120,8 @@ public class Application {
                     break;
                 case "getTables":
                     connectDb();
-                    MetaFetcher metaFetcher = new MetaFetcher(connection, outputFile);
-                    metaFetcher.getTables();
+                    MetaFetcher metaFetcher = new MetaFetcher(connection);
+                    metaFetcher.fetchTableListing(outputFile);
                     break;
                 case "export":
                     includeHeader = true;
@@ -133,8 +133,6 @@ public class Application {
                     break;
                 default:
                     throw new UserException("Invalid action provided: '" + action + "' is not supported.");
-                    break;
-
             }
             System.out.println("All done");
         } catch (UserException ex) {
