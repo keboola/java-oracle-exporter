@@ -28,7 +28,7 @@ public class BaseTest {
     protected static String outputFile;
     private static Connection connection;
 
-    protected void createTemporaryConfigFile(String inputConfigFile, String outputConfigFile) throws IOException, ApplicationException {
+    protected String createTemporaryConfigFile(String inputConfigFile) throws IOException, ApplicationException {
         JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
         JSONObject paramsObj = baseObj.getJSONObject("parameters");
         if (paramsObj.has("outputFile")) {
@@ -37,36 +37,26 @@ public class BaseTest {
         paramsObj.put("db", getDbJsonNode());
         baseObj.remove("parameters");
         baseObj.put("parameters", paramsObj);
-        writeJsonConfigToFile(baseObj, outputConfigFile);
+        File outputConfigFile = File.createTempFile("config", ".json");
+        writeJsonConfigToFile(baseObj, outputConfigFile.getAbsolutePath());
+        return outputConfigFile.getAbsolutePath();
     }
 
-    protected void createTemporaryConfigFileWithInvalidCredentials(String inputConfigFile, String outputConfigFile) throws IOException, ApplicationException {
-        JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
-        JSONObject paramsObj = baseObj.getJSONObject("parameters");
-        JSONObject dbObj = getDbJsonNode();
-        dbObj.put("#password", "invalid_password");
-        paramsObj.put("db", dbObj);
-        baseObj.remove("parameters");
-        baseObj.put("parameters", paramsObj);
-        writeJsonConfigToFile(baseObj, outputConfigFile);
-    }
-
-    private JSONObject getJsonConfigFromFile(String fileName) throws IOException {
+    protected JSONObject getJsonConfigFromFile(String fileName) throws IOException {
         String jsonString;
-
         byte[] encoded;
         encoded = Files.readAllBytes(Paths.get(fileName));
         jsonString = new String(encoded, "utf-8");
-
         return new JSONObject(jsonString);
     }
 
-    private void writeJsonConfigToFile(JSONObject jsonConfig, String fileName) throws IOException {
-        FileWriter file = new FileWriter(fileName);
-        file.write(jsonConfig.toString());
+    protected void writeJsonConfigToFile(JSONObject jsonConfig, String fileName) throws IOException {
+        try (FileWriter file = new FileWriter(fileName)) {
+            file.write(jsonConfig.toString());
+        }
     }
 
-    private JSONObject getDbJsonNode() {
+    protected JSONObject getDbJsonNode() {
         JSONObject dbNode = new JSONObject();
 
         dbNode.put("host", System.getenv("DB_HOST"));

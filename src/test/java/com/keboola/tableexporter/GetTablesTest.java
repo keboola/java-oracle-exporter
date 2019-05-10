@@ -23,9 +23,9 @@ public class GetTablesTest extends BaseTest {
 
         URI configUri = classLoader.getResource("getTables/config.json").toURI();
 
-        super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString(), "tmp.json");
+        String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
 
-        String[] args = {"getTables", "tmp.json"};
+        String[] args = {"getTables", tmpFile};
         app.main(args);
 
         File output = new File("tables.json");

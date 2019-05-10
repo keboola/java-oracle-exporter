@@ -90,8 +90,8 @@ public class MetaFetcher {
                 curColumns.put(curColumnIndex, currentColumn);
                 curObject.put("columns", curColumns);
                 output.put(curTable, curObject);
-                return output;
             }
+            return output;
         } catch (SQLException sqlException) {
             throw new UserException("SQL Exception: " + sqlException.getMessage(), sqlException);
         }
