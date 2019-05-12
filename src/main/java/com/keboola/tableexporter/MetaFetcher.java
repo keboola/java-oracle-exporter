@@ -105,7 +105,7 @@ public class MetaFetcher {
         return columnData;
     }
 
-    private String getColumnLength(ResultSet resultSet) throws SQLException
+    public String getColumnLength(ResultSet resultSet) throws SQLException
     {
         String length = resultSet.getString("DATA_LENGTH");
         if (resultSet.getString("DATA_PRECISION") != null
