@@ -30,14 +30,7 @@ public class MetaFetcher {
             while(resultSet.next()) {
                 String curTable = resultSet.getString("OWNER") + "." + resultSet.getString("TABLE_NAME");
                 if (!output.containsKey(curTable)) {
-                    LinkedHashMap tableData = new LinkedHashMap();
-                    tableData.put("name", resultSet.getString("TABLE_NAME"));
-                    tableData.put("tablespaceName", resultSet.getString("TABLESPACE_NAME"));
-                    tableData.put("schema", resultSet.getString("OWNER"));
-                    tableData.put("owner", resultSet.getString("OWNER"));
-                    if (resultSet.getString("NUM_ROWS") != null) {
-                        tableData.put("rowCount", resultSet.getInt("NUM_ROWS"));
-                    }
+                    LinkedHashMap tableData = getTableData(resultSet);
                     output.put(curTable, tableData);
                 }
 
@@ -49,19 +42,7 @@ public class MetaFetcher {
 
                 Integer curColumnIndex = resultSet.getInt("COLUMN_ID") - 1;
                 if (!curColumns.containsKey(curColumnIndex)) {
-                    LinkedHashMap columnData = new LinkedHashMap();
-                    columnData.put("name", resultSet.getString("COLUMN_NAME"));
-                    columnData.put("sanitizedName", columnNameSanitizer(resultSet.getString("COLUMN_NAME")));
-                    columnData.put("type", resultSet.getString("DATA_TYPE"));
-                    if (resultSet.getString("NULLABLE").equals("Y")) {
-                        columnData.put("nullable",  true);
-                    } else {
-                        columnData.put("nullable",  false);
-                    }
-                    columnData.put("length", getColumnLength(resultSet));
-                    columnData.put("ordinalPosition", resultSet.getInt("COLUMN_ID"));
-                    columnData.put("primaryKey", false);
-                    columnData.put("uniqueKey", false);
+                    LinkedHashMap columnData = getColumnData(resultSet);
                     curColumns.put(curColumnIndex, columnData);
                     curObject.put("columns", curColumns);
                 }
@@ -93,6 +74,35 @@ public class MetaFetcher {
         } catch (SQLException sqlException) {
             throw new UserException("SQL Exception: " + sqlException.getMessage(), sqlException);
         }
+    }
+
+    public LinkedHashMap getTableData(ResultSet rs) throws SQLException {
+        LinkedHashMap tableData = new LinkedHashMap();
+        tableData.put("name", rs.getString("TABLE_NAME"));
+        tableData.put("tablespaceName", rs.getString("TABLESPACE_NAME"));
+        tableData.put("schema", rs.getString("OWNER"));
+        tableData.put("owner", rs.getString("OWNER"));
+        if (rs.getString("NUM_ROWS") != null) {
+            tableData.put("rowCount", rs.getInt("NUM_ROWS"));
+        }
+        return tableData;
+    }
+
+    public LinkedHashMap getColumnData(ResultSet rs) throws SQLException {
+        LinkedHashMap columnData = new LinkedHashMap();
+        columnData.put("name", rs.getString("COLUMN_NAME"));
+        columnData.put("sanitizedName", columnNameSanitizer(rs.getString("COLUMN_NAME")));
+        columnData.put("type", rs.getString("DATA_TYPE"));
+        if (rs.getString("NULLABLE").equals("Y")) {
+            columnData.put("nullable",  true);
+        } else {
+            columnData.put("nullable",  false);
+        }
+        columnData.put("length", getColumnLength(rs));
+        columnData.put("ordinalPosition", rs.getInt("COLUMN_ID"));
+        columnData.put("primaryKey", false);
+        columnData.put("uniqueKey", false);
+        return columnData;
     }
 
     private String getColumnLength(ResultSet resultSet) throws SQLException
