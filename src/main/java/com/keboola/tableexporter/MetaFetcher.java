@@ -51,7 +51,7 @@ public class MetaFetcher {
                     switch (resultSet.getString("CONSTRAINT_TYPE")) {
                         case "R":
                             currentColumn.put("foreignKeyName", resultSet.getString("CONSTRAINT_NAME"));
-                            currentColumn.put("foreignKeyTable", resultSet.getString("R_OWNER"));
+                            currentColumn.put("foreignKeyRefTable", resultSet.getString("R_OWNER"));
                             currentColumn.put("foreignKeyRef", resultSet.getString("R_CONSTRAINT_NAME"));
                             break;
                         case "P":
