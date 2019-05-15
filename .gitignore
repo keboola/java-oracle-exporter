@@ -3,3 +3,8 @@
 /target
 /data/config.json
 /TableExporter.iml
+/build
+.env
+tables.json
+tmp.json
+in.c-main*

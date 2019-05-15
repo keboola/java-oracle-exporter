@@ -29,8 +29,8 @@ public class ClobTest extends BaseTest {
         Application app = new Application();
 
         URI configUri = classLoader.getResource("clob/config.json").toURI();
-        String tmpConfig = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
-        String[] args = {tmpConfig};
+        String tmpFile = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
+        String[] args = {"export", tmpFile};
         app.main(args);
 
         File output = new File(outputFile);

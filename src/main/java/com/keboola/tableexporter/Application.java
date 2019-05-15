@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
@@ -14,6 +15,7 @@ import com.keboola.tableexporter.exception.UserException;
 import org.json.JSONObject;
 
 public class Application {
+
     private static String dbPort;
     private static String dbHost;
     private static String dbUser;
@@ -41,8 +43,12 @@ public class Application {
         dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
         dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
         dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
-        query = obj.getJSONObject("parameters").getString("query");
-        outputFile = obj.getJSONObject("parameters").getString("outputFile");
+        if (obj.getJSONObject("parameters").has("outputFile")) {
+            outputFile = obj.getJSONObject("parameters").getString("outputFile");
+        }
+        if (obj.getJSONObject("parameters").has("query")) {
+            query = obj.getJSONObject("parameters").getString("query");
+        }
     }    
     
     private static void connectDb() throws ApplicationException, UserException {
@@ -90,13 +96,13 @@ public class Application {
                 }
             }
             String[] headerArr = new String[header.size()];
-            CsvWriter writer = new CsvWriter(outputFile, (includeHeader) ? header.toArray(header.toArray(headerArr)) : null);
+            CsvWriter writer = new CsvWriter(outputFile, (includeHeader) ? header.toArray(headerArr) : null);
             // write the result set to csv
             int rowCount = writer.write(rs, hasLobs);
             final long end = System.nanoTime();
             System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
             writer.close();
-            System.out.println("Data File " + outputFile + " was created successfully.");
+            System.out.println("The output data file was created successfully.");
         } catch (SQLException ex) {
             throw new UserException("SQL Exception: " + ex.getMessage(), ex);
         } catch (CsvException ex) {
@@ -106,13 +112,30 @@ public class Application {
     
     public static void main(String[] args) {
         try {
-            readConfigFile(args[0]);
-            includeHeader = true;
-            if (args.length > 1) {
-                includeHeader = Boolean.parseBoolean(args[1]);
+            String action = args[0];
+            System.out.println("executing action " + action);
+            readConfigFile(args[1]);
+            switch (action) {
+                case "testConnection":
+                    connectDb();
+                    break;
+                case "getTables":
+                    connectDb();
+                    MetaFetcher metaFetcher = new MetaFetcher(connection);
+                    TreeMap tables = metaFetcher.fetchTableListing();
+                    metaFetcher.writeListingToJsonFile(tables, outputFile);
+                    break;
+                case "export":
+                    includeHeader = true;
+                    if (args.length > 2) {
+                        includeHeader = Boolean.parseBoolean(args[2]);
+                    }
+                    connectDb();
+                    fetchData();
+                    break;
+                default:
+                    throw new UserException("Invalid action provided: '" + action + "' is not supported.");
             }
-            connectDb();
-            fetchData();
             System.out.println("All done");
         } catch (UserException ex) {
             System.err.println(ex.getMessage());

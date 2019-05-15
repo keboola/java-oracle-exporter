@@ -2,7 +2,12 @@ version: "2"
 
 services:
   tests:
-    build: .
+    build:
+      context: .
+      args:
+        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+        - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
     image: keboola/oracle-table-exporter
     volumes:
       - ./:/code
@@ -17,7 +22,7 @@ services:
       - oracle
 
   oracle:
-    image: alexeiled/docker-oracle-xe-11g
+    image: wnameless/oracle-xe-11g
     ports:
       - "8080:8080"
       - "1521:1521"

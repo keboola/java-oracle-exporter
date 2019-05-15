@@ -25,37 +25,47 @@ public class BaseTest {
     private static String dbUser;
     private static String dbPassword;
     private static String dbDatabase;
-    private static Connection connection;
-    protected static String query;
     protected static String outputFile;
+    private static Connection connection;
 
-    protected String createTemporaryConfigFile(String configFile) throws IOException, ApplicationException {
-        String jsonString;
-        try {
-            byte[] encoded;
-            encoded = Files.readAllBytes(Paths.get(configFile));
-            jsonString = new String(encoded, "utf-8");
-        } catch (IOException ex) {
-            throw new ApplicationException("Configuration file is invalid", ex);
-        }
-        JSONObject baseObj = new JSONObject(jsonString);
+    protected String createTemporaryConfigFile(String inputConfigFile) throws IOException, ApplicationException {
+        JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
         JSONObject paramsObj = baseObj.getJSONObject("parameters");
-        outputFile = paramsObj.getString("outputFile");
-        query = paramsObj.getString("query");
-        JSONObject dbobj = new JSONObject();
-
-        dbobj.put("host", System.getenv("DB_HOST"));
-        dbobj.put("port", System.getenv("DB_PORT"));
-        dbobj.put("user", System.getenv("DB_USER"));
-        dbobj.put("#password", System.getenv("DB_PASSWORD"));
-        dbobj.put("database", System.getenv("DB_DATABASE"));
-        paramsObj.put("db", dbobj);
+        if (paramsObj.has("outputFile")) {
+            outputFile = paramsObj.getString("outputFile");
+        }
+        paramsObj.put("db", getDbJsonNode());
         baseObj.remove("parameters");
         baseObj.put("parameters", paramsObj);
-        try (FileWriter file = new FileWriter("tmp.json")) {
-            file.write(baseObj.toString());
+        File outputConfigFile = File.createTempFile("config", ".json");
+        writeJsonConfigToFile(baseObj, outputConfigFile.getAbsolutePath());
+        return outputConfigFile.getAbsolutePath();
+    }
+
+    protected JSONObject getJsonConfigFromFile(String fileName) throws IOException {
+        String jsonString;
+        byte[] encoded;
+        encoded = Files.readAllBytes(Paths.get(fileName));
+        jsonString = new String(encoded, "utf-8");
+        return new JSONObject(jsonString);
+    }
+
+    protected void writeJsonConfigToFile(JSONObject jsonConfig, String fileName) throws IOException {
+        try (FileWriter file = new FileWriter(fileName)) {
+            file.write(jsonConfig.toString());
         }
-        return "tmp.json";
+    }
+
+    protected JSONObject getDbJsonNode() {
+        JSONObject dbNode = new JSONObject();
+
+        dbNode.put("host", System.getenv("DB_HOST"));
+        dbNode.put("port", System.getenv("DB_PORT"));
+        dbNode.put("user", System.getenv("DB_USER"));
+        dbNode.put("#password", System.getenv("DB_PASSWORD"));
+        dbNode.put("database", System.getenv("DB_DATABASE"));
+
+        return dbNode;
     }
 
     private static void connectDb() throws ApplicationException, UserException {
