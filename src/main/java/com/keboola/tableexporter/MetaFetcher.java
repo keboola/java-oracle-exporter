@@ -175,7 +175,8 @@ public class MetaFetcher {
                 "        AND all_tables.OWNER != 'SYS'\n" +
                 "        AND all_tables.OWNER != 'SYSTEM'\n" +
                 "        UNION ALL\n" +
-                "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS\n" +
+                "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
+                "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n" +
                 "    )\n" +
                 "    TABS\n" +
                 "        ON COLS.TABLE_NAME = TABS.TABLE_NAME\n" +
