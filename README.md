@@ -1,7 +1,8 @@
 # java-oracle-exporter
 
-download ojdbc8-full http://www.oracle.com/technetwork/database/features/jdbc/jdbc-ucp-122-3110062.html
-put in ojdbc8-full
+prepare a .env file with
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
 
 build:
 ```
