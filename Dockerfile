@@ -1,7 +1,6 @@
 FROM quay.io/keboola/aws-cli
 ARG AWS_SECRET_ACCESS_KEY
 ARG AWS_ACCESS_KEY_ID
-ARG AWS_SESSION_TOKEN
 RUN /usr/bin/aws s3 cp s3://keboola-drivers/ojdbc8-full/ojdbc8.jar /tmp/ojdbc8-full/ojdbc8.jar
 
 # instead of maven:3.5.0-jdk-8-alpine, contained old java version
