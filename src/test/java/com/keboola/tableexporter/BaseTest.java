@@ -178,6 +178,42 @@ public class BaseTest {
         }
     }
 
+    protected void setupSynonyms() throws Exception {
+        dbPort = System.getenv("DB_PORT");
+        dbHost = System.getenv("DB_HOST");
+        dbUser = System.getenv("DB_USER");
+        dbPassword = System.getenv("DB_PASSWORD");
+        dbDatabase = System.getenv("DB_DATABASE");
+
+        connectDb();
+
+        Statement statement = connection.createStatement();
+        createUserIfNotExists("SETUPUSER", "setuppassword");
+        statement.execute("GRANT CONNECT TO SETUPUSER");
+        statement.execute("GRANT CREATE SESSION to SETUPUSER");
+        statement.execute("GRANT ALL PRIVILEGES TO SETUPUSER");
+        statement.execute("GRANT UNLIMITED TABLESPACE TO SETUPUSER");
+
+        /*
+        createUserIfNotExists("FETCHER", "fetchpassword");
+        statement.execute("GRANT CONNECT TO FETCHER");
+        statement.execute("GRANT CREATE SESSION to FETCHER");
+        statement.execute("GRANT ALL PRIVILEGES TO FETCHER");
+        statement.execute("GRANT UNLIMITED TABLESPACE TO FETCHER");
+        */
+        closeConnection();
+
+        dbUser = "SETUPUSER";
+        dbPassword = "setuppassword";
+
+        connectDb();
+
+        dropTableIfExists("SETUPUSER.synonymtest");
+        statement = connection.createStatement();
+        statement.execute("create table SETUPUSER.synonymtest (\"index\" integer, name varchar2(64))");
+        statement.execute("CREATE OR REPLACE SYNONYM synonymlisted FOR SETUPUSER.synonymtest");
+    }
+
     @AfterClass
     public static void closeConnection() throws SQLException {
         try {
@@ -195,6 +231,20 @@ public class BaseTest {
                 "         RAISE;\n" +
                 "      END IF;\n" +
                 "END;";
+        Statement stmt = connection.createStatement();
+        stmt.execute(sql);
+    }
+
+    private void createUserIfNotExists(String username, String password) throws SQLException {
+
+        String sql = "declare\n" +
+                "userexist integer;\n" +
+                "begin\n" +
+                "  select count(*) into userexist from all_users where username='" + username + "';\n" +
+                "  if (userexist = 0) then\n" +
+                "    execute immediate 'create user " + username + " identified by " + password + "';\n" +
+                "  end if;\n" +
+                "end;";
         Statement stmt = connection.createStatement();
         stmt.execute(sql);
     }
