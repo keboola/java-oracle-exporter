@@ -46,7 +46,7 @@
         <dependency>
             <groupId>com.oracle.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
-            <version>LATEST</version>
+            <version>12.2.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
