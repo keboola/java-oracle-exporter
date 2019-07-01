@@ -79,7 +79,9 @@ public class MetaFetcher {
     public LinkedHashMap getTableData(ResultSet rs) throws SQLException {
         LinkedHashMap tableData = new LinkedHashMap();
         tableData.put("name", rs.getString("TABLE_NAME"));
-        tableData.put("tablespaceName", rs.getString("TABLESPACE_NAME"));
+        if (rs.getString("TABLESPACE_NAME") != null) {
+            tableData.put("tablespaceName", rs.getString("TABLESPACE_NAME"));
+        }
         tableData.put("schema", rs.getString("OWNER"));
         tableData.put("owner", rs.getString("OWNER"));
         if (rs.getString("NUM_ROWS") != null) {
