@@ -1,2 +1,7 @@
 language: bash
-script: docker-compose build
+before-script:
+  - docker-compose build
+  - git clone https://github.com/wnameless/docker-oracle-xe-11g build/oracle
+  - docker build -t wnameless/oracle-xe-11g build/oracle
+script:
+  - docker-compose run --rm tests
