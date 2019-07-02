@@ -1,5 +1,6 @@
 {
   "parameters": {
-    "outputFile": "/code/tables.json"
+    "outputFile": "/code/tables.json",
+    "tables": []
   }
 }
