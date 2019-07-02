@@ -32,4 +32,23 @@ public class GetTablesTest extends BaseTest {
 
         assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
     }
+
+    @Test
+    public void testGetSingleTable()  throws IOException, URISyntaxException, ApplicationException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File expectedFile = new File(classLoader.getResource("getTables/expectedSingleTableResults.json").toURI());
+
+        Application app = new Application();
+
+        URI configUri = classLoader.getResource("getTables/singleTableConfig.json").toURI();
+
+        String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
+
+        String[] args = {"getTables", tmpFile};
+        app.main(args);
+
+        File output = new File("tables.json");
+
+        assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
+    }
 }
