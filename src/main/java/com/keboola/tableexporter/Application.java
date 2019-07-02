@@ -5,9 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.TreeMap;
+import java.util.*;
 
 import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
@@ -23,6 +21,7 @@ public class Application {
     private static String dbName;
     private static String query;
     private static String outputFile;
+    private static ArrayList<TableDefinition> tables;
     private static Connection connection;
     private static boolean includeHeader;
     
@@ -48,6 +47,13 @@ public class Application {
         }
         if (obj.getJSONObject("parameters").has("query")) {
             query = obj.getJSONObject("parameters").getString("query");
+        }
+        tables = new ArrayList<>();
+        if (obj.getJSONObject("parameters").has("tables")) {
+            List tableList = obj.getJSONObject("parameters").getJSONArray("tables").toList();
+            for (int i = 0; i < tableList.size(); i++) {
+                tables.add(new TableDefinition((HashMap) tableList.get(i)));
+            }
         }
     }    
     
@@ -122,7 +128,8 @@ public class Application {
                 case "getTables":
                     connectDb();
                     MetaFetcher metaFetcher = new MetaFetcher(connection);
-                    TreeMap tables = metaFetcher.fetchTableListing();
+                    ArrayList<TableDefinition> tablesList = tables;
+                    TreeMap tables = metaFetcher.fetchTableListing(tablesList);
                     metaFetcher.writeListingToJsonFile(tables, outputFile);
                     break;
                 case "export":

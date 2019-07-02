@@ -20,11 +20,11 @@ public class MetaFetcher {
         this.connection = connection;
     }
 
-    public TreeMap fetchTableListing() throws UserException {
+    public TreeMap fetchTableListing(ArrayList<TableDefinition> tables) throws UserException {
         System.out.println("Fetching table listing");
         try {
             Statement stmt = connection.createStatement();
-            String tableListQuery = tableListingQuery();
+            String tableListQuery = tableListingQuery(tables);
             ResultSet resultSet = stmt.executeQuery(tableListQuery);
             TreeMap output = new TreeMap();
             while(resultSet.next()) {
@@ -146,8 +146,8 @@ public class MetaFetcher {
         }
     }
 
-    private String tableListingQuery() {
-        return "SELECT TABS.TABLE_NAME ,\n" +
+    private String tableListingQuery(ArrayList<TableDefinition> tables) {
+        String sql = "SELECT TABS.TABLE_NAME ,\n" +
                 "    TABS.TABLESPACE_NAME ,\n" +
                 "    TABS.OWNER ,\n" +
                 "    TABS.NUM_ROWS ,\n" +
@@ -199,6 +199,20 @@ public class MetaFetcher {
                 "    )\n" +
                 "    REFCOLS ON COLS.TABLE_NAME = REFCOLS.TABLE_NAME\n" +
                 "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME";
+
+        if (tables.size() > 0) {
+            sql += "\nWHERE ";
+            for (int i = 0; i < tables.size(); i++) {
+                if (i > 0) {
+                    sql += " OR ";
+                }
+                sql += "(";
+                sql += "TABS.TABLE_NAME = '" + tables.get(i).getTableName() + "' AND ";
+                sql += "TABS.OWNER = '" + tables.get(i).getSchema() + "'";
+                sql += ")\n";
+            }
+        }
+        return sql;
     }
 
     public static String columnNameSanitizer(String columnName) {
