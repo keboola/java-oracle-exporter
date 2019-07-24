@@ -131,14 +131,16 @@ public class MetaFetcher {
                 Map.Entry table = (Map.Entry)it.next();
                 JSONArray columnsArray = new JSONArray();
                 LinkedHashMap tableMap = new LinkedHashMap((LinkedHashMap) table.getValue());
-                TreeMap<Integer, JSONObject> columns = (TreeMap<Integer, JSONObject>) tableMap.get("columns");
-                Iterator columnsIterator = columns.entrySet().iterator();
-                while (columnsIterator.hasNext()) {
-                    Map.Entry column = (Map.Entry)columnsIterator.next();
-                    columnsArray.add(column.getValue());
-                    columnsIterator.remove();
+                if (tableMap.containsKey("columns")) {
+                    TreeMap<Integer, JSONObject> columns = (TreeMap<Integer, JSONObject>) tableMap.get("columns");
+                    Iterator columnsIterator = columns.entrySet().iterator();
+                    while (columnsIterator.hasNext()) {
+                        Map.Entry column = (Map.Entry)columnsIterator.next();
+                        columnsArray.add(column.getValue());
+                        columnsIterator.remove();
+                    }
+                    tableMap.put("columns", columnsArray);
                 }
-                tableMap.put("columns", columnsArray);
                 outputArray.add(tableMap);
                 it.remove();
             }
