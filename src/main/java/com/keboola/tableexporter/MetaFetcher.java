@@ -158,7 +158,7 @@ public class MetaFetcher {
         String sql = "SELECT \n" +
                 "        TABLE_NAME , \n" +
                 "        TABLESPACE_NAME, \n" +
-                "        OWNER , \n" +
+                "        OWNER, \n" +
                 "        NUM_ROWS\n" +
                 "        FROM all_tables\n" +
                 "        WHERE all_tables.TABLESPACE_NAME != 'SYSAUX'\n" +
@@ -170,16 +170,18 @@ public class MetaFetcher {
                 "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n";
 
         if (tables.size() > 0) {
-            sql += "\nWHERE ";
+            String whereClause = "\nWHERE ";
             for (int i = 0; i < tables.size(); i++) {
                 if (i > 0) {
-                    sql += " OR ";
+                    whereClause += " OR ";
                 }
-                sql += "(";
-                sql += "TABS.TABLE_NAME = '" + tables.get(i).getTableName() + "' AND ";
-                sql += "TABS.OWNER = '" + tables.get(i).getSchema() + "'";
-                sql += ")\n";
+                whereClause += "(";
+                whereClause += "TABS.TABLE_NAME = '" + tables.get(i).getTableName() + "' AND ";
+                whereClause += "TABS.OWNER = '" + tables.get(i).getSchema() + "'";
+                whereClause += ")\n";
             }
+
+            sql = "SELECT * FROM (" + sql + ") TABS " + whereClause;
         }
         return sql;
     }
