@@ -20,7 +20,7 @@ public class MetaFetcher {
         this.connection = connection;
     }
 
-    public TreeMap fetchTableListing(ArrayList<TableDefinition> tables) throws UserException {
+    public TreeMap fetchTableListing(ArrayList<TableDefinition> tables, boolean includeColumns) throws UserException {
         System.out.println("Fetching table listing");
         try {
             Statement stmt = connection.createStatement();
@@ -32,6 +32,9 @@ public class MetaFetcher {
                 if (!output.containsKey(curTable)) {
                     LinkedHashMap tableData = getTableData(resultSet);
                     output.put(curTable, tableData);
+                }
+                if (!includeColumns) {
+                    continue;
                 }
 
                 LinkedHashMap curObject = new LinkedHashMap((HashMap) output.get(curTable));
@@ -144,6 +147,36 @@ public class MetaFetcher {
         } catch (IOException ioException) {
             throw new UserException("IO Exception: " + ioException.getMessage(), ioException);
         }
+    }
+
+    private String onlyTablesQuery(ArrayList<TableDefinition> tables) {
+        String sql = "SELECT \n" +
+                "        TABLE_NAME , \n" +
+                "        TABLESPACE_NAME, \n" +
+                "        OWNER , \n" +
+                "        NUM_ROWS\n" +
+                "        FROM all_tables\n" +
+                "        WHERE all_tables.TABLESPACE_NAME != 'SYSAUX'\n" +
+                "        AND all_tables.TABLESPACE_NAME != 'SYSTEM'\n" +
+                "        AND all_tables.OWNER != 'SYS'\n" +
+                "        AND all_tables.OWNER != 'SYSTEM'\n" +
+                "        UNION ALL\n" +
+                "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
+                "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n";
+
+        if (tables.size() > 0) {
+            sql += "\nWHERE ";
+            for (int i = 0; i < tables.size(); i++) {
+                if (i > 0) {
+                    sql += " OR ";
+                }
+                sql += "(";
+                sql += "TABS.TABLE_NAME = '" + tables.get(i).getTableName() + "' AND ";
+                sql += "TABS.OWNER = '" + tables.get(i).getSchema() + "'";
+                sql += ")\n";
+            }
+        }
+        return sql;
     }
 
     private String tableListingQuery(ArrayList<TableDefinition> tables) {
