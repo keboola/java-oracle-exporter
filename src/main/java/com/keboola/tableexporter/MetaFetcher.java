@@ -25,6 +25,9 @@ public class MetaFetcher {
         try {
             Statement stmt = connection.createStatement();
             String tableListQuery = tableListingQuery(tables);
+            if (!includeColumns) {
+                tableListQuery = onlyTablesQuery(tables);
+            }
             ResultSet resultSet = stmt.executeQuery(tableListQuery);
             TreeMap output = new TreeMap();
             while(resultSet.next()) {
