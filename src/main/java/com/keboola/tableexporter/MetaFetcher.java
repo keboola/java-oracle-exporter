@@ -6,10 +6,7 @@ import org.json.simple.JSONArray;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 
 public class MetaFetcher {
@@ -23,12 +20,8 @@ public class MetaFetcher {
     public TreeMap fetchTableListing(ArrayList<TableDefinition> tables, boolean includeColumns) throws UserException {
         System.out.println("Fetching table listing");
         try {
-            Statement stmt = connection.createStatement();
-            String tableListQuery = tableListingQuery(tables);
-            if (!includeColumns) {
-                tableListQuery = onlyTablesQuery(tables);
-            }
-            ResultSet resultSet = stmt.executeQuery(tableListQuery);
+            PreparedStatement stmt = includeColumns ? tableListingQuery(tables) : onlyTablesQuery(tables);
+            ResultSet resultSet = stmt.executeQuery();
             TreeMap output = new TreeMap();
             while(resultSet.next()) {
                 String curTable = resultSet.getString("OWNER") + "." + resultSet.getString("TABLE_NAME");
@@ -154,7 +147,7 @@ public class MetaFetcher {
         }
     }
 
-    private String onlyTablesQuery(ArrayList<TableDefinition> tables) {
+    private PreparedStatement onlyTablesQuery(ArrayList<TableDefinition> tables) throws SQLException {
         String sql = "SELECT \n" +
                 "        TABLE_NAME , \n" +
                 "        TABLESPACE_NAME, \n" +
@@ -169,6 +162,7 @@ public class MetaFetcher {
                 "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
                 "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n";
 
+        ArrayList<String> statementValues = new ArrayList<>();
         if (tables.size() > 0) {
             String whereClause = "\nWHERE ";
             for (int i = 0; i < tables.size(); i++) {
@@ -176,17 +170,22 @@ public class MetaFetcher {
                     whereClause += " OR ";
                 }
                 whereClause += "(";
-                whereClause += "TABS.TABLE_NAME = '" + tables.get(i).getTableName() + "' AND ";
-                whereClause += "TABS.OWNER = '" + tables.get(i).getSchema() + "'";
+                whereClause += "TABS.TABLE_NAME = ? AND ";
+                whereClause += "TABS.OWNER = ?";
                 whereClause += ")\n";
+                statementValues.add(tables.get(i).getTableName());
+                statementValues.add(tables.get(i).getSchema());
             }
-
             sql = "SELECT * FROM (" + sql + ") TABS " + whereClause;
         }
-        return sql;
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        for (int i = 0; i < statementValues.size(); i++) {
+            stmt.setString(i + 1, statementValues.get(i));
+        }
+        return stmt;
     }
 
-    private String tableListingQuery(ArrayList<TableDefinition> tables) {
+    private PreparedStatement tableListingQuery(ArrayList<TableDefinition> tables) throws SQLException {
         String sql = "SELECT TABS.TABLE_NAME ,\n" +
                 "    TABS.TABLESPACE_NAME ,\n" +
                 "    TABS.OWNER ,\n" +
@@ -240,6 +239,7 @@ public class MetaFetcher {
                 "    REFCOLS ON COLS.TABLE_NAME = REFCOLS.TABLE_NAME\n" +
                 "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME";
 
+        ArrayList<String> statementValues = new ArrayList<>();
         if (tables.size() > 0) {
             sql += "\nWHERE ";
             for (int i = 0; i < tables.size(); i++) {
@@ -247,12 +247,18 @@ public class MetaFetcher {
                     sql += " OR ";
                 }
                 sql += "(";
-                sql += "TABS.TABLE_NAME = '" + tables.get(i).getTableName() + "' AND ";
-                sql += "TABS.OWNER = '" + tables.get(i).getSchema() + "'";
+                sql += "TABS.TABLE_NAME = ? AND ";
+                sql += "TABS.OWNER = ?";
                 sql += ")\n";
+                statementValues.add(tables.get(i).getTableName());
+                statementValues.add(tables.get(i).getSchema());
             }
         }
-        return sql;
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        for (int i = 0; i < statementValues.size(); i++) {
+            stmt.setString(i + 1, statementValues.get(i));
+        }
+        return stmt;
     }
 
     public static String columnNameSanitizer(String columnName) {
