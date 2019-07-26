@@ -24,6 +24,7 @@ public class Application {
     private static ArrayList<TableDefinition> tables;
     private static Connection connection;
     private static boolean includeHeader;
+    private static boolean includeColumns;
     
     private static void readConfigFile(String configFile) throws ApplicationException {
         System.out.println("Processing configuration file " + configFile);
@@ -54,6 +55,10 @@ public class Application {
             for (int i = 0; i < tableList.size(); i++) {
                 tables.add(new TableDefinition((HashMap) tableList.get(i)));
             }
+        }
+        includeColumns = true;
+        if (obj.getJSONObject("parameters").has("includeColumns")) {
+            includeColumns = obj.getJSONObject("parameters").getBoolean("includeColumns");
         }
     }    
     
@@ -129,7 +134,7 @@ public class Application {
                     connectDb();
                     MetaFetcher metaFetcher = new MetaFetcher(connection);
                     ArrayList<TableDefinition> tablesList = tables;
-                    TreeMap tables = metaFetcher.fetchTableListing(tablesList);
+                    TreeMap tables = metaFetcher.fetchTableListing(tablesList, includeColumns);
                     metaFetcher.writeListingToJsonFile(tables, outputFile);
                     break;
                 case "export":

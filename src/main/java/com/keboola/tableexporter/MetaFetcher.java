@@ -6,10 +6,7 @@ import org.json.simple.JSONArray;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 
 public class MetaFetcher {
@@ -20,18 +17,20 @@ public class MetaFetcher {
         this.connection = connection;
     }
 
-    public TreeMap fetchTableListing(ArrayList<TableDefinition> tables) throws UserException {
+    public TreeMap fetchTableListing(ArrayList<TableDefinition> tables, boolean includeColumns) throws UserException {
         System.out.println("Fetching table listing");
         try {
-            Statement stmt = connection.createStatement();
-            String tableListQuery = tableListingQuery(tables);
-            ResultSet resultSet = stmt.executeQuery(tableListQuery);
+            PreparedStatement stmt = includeColumns ? tableListingQuery(tables) : onlyTablesQuery(tables);
+            ResultSet resultSet = stmt.executeQuery();
             TreeMap output = new TreeMap();
             while(resultSet.next()) {
                 String curTable = resultSet.getString("OWNER") + "." + resultSet.getString("TABLE_NAME");
                 if (!output.containsKey(curTable)) {
                     LinkedHashMap tableData = getTableData(resultSet);
                     output.put(curTable, tableData);
+                }
+                if (!includeColumns) {
+                    continue;
                 }
 
                 LinkedHashMap curObject = new LinkedHashMap((HashMap) output.get(curTable));
@@ -128,14 +127,16 @@ public class MetaFetcher {
                 Map.Entry table = (Map.Entry)it.next();
                 JSONArray columnsArray = new JSONArray();
                 LinkedHashMap tableMap = new LinkedHashMap((LinkedHashMap) table.getValue());
-                TreeMap<Integer, JSONObject> columns = (TreeMap<Integer, JSONObject>) tableMap.get("columns");
-                Iterator columnsIterator = columns.entrySet().iterator();
-                while (columnsIterator.hasNext()) {
-                    Map.Entry column = (Map.Entry)columnsIterator.next();
-                    columnsArray.add(column.getValue());
-                    columnsIterator.remove();
+                if (tableMap.containsKey("columns")) {
+                    TreeMap<Integer, JSONObject> columns = (TreeMap<Integer, JSONObject>) tableMap.get("columns");
+                    Iterator columnsIterator = columns.entrySet().iterator();
+                    while (columnsIterator.hasNext()) {
+                        Map.Entry column = (Map.Entry)columnsIterator.next();
+                        columnsArray.add(column.getValue());
+                        columnsIterator.remove();
+                    }
+                    tableMap.put("columns", columnsArray);
                 }
-                tableMap.put("columns", columnsArray);
                 outputArray.add(tableMap);
                 it.remove();
             }
@@ -146,7 +147,45 @@ public class MetaFetcher {
         }
     }
 
-    private String tableListingQuery(ArrayList<TableDefinition> tables) {
+    private PreparedStatement onlyTablesQuery(ArrayList<TableDefinition> tables) throws SQLException {
+        String sql = "SELECT \n" +
+                "        TABLE_NAME , \n" +
+                "        TABLESPACE_NAME, \n" +
+                "        OWNER, \n" +
+                "        NUM_ROWS\n" +
+                "        FROM all_tables\n" +
+                "        WHERE all_tables.TABLESPACE_NAME != 'SYSAUX'\n" +
+                "        AND all_tables.TABLESPACE_NAME != 'SYSTEM'\n" +
+                "        AND all_tables.OWNER != 'SYS'\n" +
+                "        AND all_tables.OWNER != 'SYSTEM'\n" +
+                "        UNION ALL\n" +
+                "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
+                "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n";
+
+        ArrayList<String> statementValues = new ArrayList<>();
+        if (tables.size() > 0) {
+            String whereClause = "\nWHERE ";
+            for (int i = 0; i < tables.size(); i++) {
+                if (i > 0) {
+                    whereClause += " OR ";
+                }
+                whereClause += "(";
+                whereClause += "TABS.TABLE_NAME = ? AND ";
+                whereClause += "TABS.OWNER = ?";
+                whereClause += ")\n";
+                statementValues.add(tables.get(i).getTableName());
+                statementValues.add(tables.get(i).getSchema());
+            }
+            sql = "SELECT * FROM (" + sql + ") TABS " + whereClause;
+        }
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        for (int i = 0; i < statementValues.size(); i++) {
+            stmt.setString(i + 1, statementValues.get(i));
+        }
+        return stmt;
+    }
+
+    private PreparedStatement tableListingQuery(ArrayList<TableDefinition> tables) throws SQLException {
         String sql = "SELECT TABS.TABLE_NAME ,\n" +
                 "    TABS.TABLESPACE_NAME ,\n" +
                 "    TABS.OWNER ,\n" +
@@ -200,6 +239,7 @@ public class MetaFetcher {
                 "    REFCOLS ON COLS.TABLE_NAME = REFCOLS.TABLE_NAME\n" +
                 "        AND COLS.COLUMN_NAME = REFCOLS.COLUMN_NAME";
 
+        ArrayList<String> statementValues = new ArrayList<>();
         if (tables.size() > 0) {
             sql += "\nWHERE ";
             for (int i = 0; i < tables.size(); i++) {
@@ -207,12 +247,18 @@ public class MetaFetcher {
                     sql += " OR ";
                 }
                 sql += "(";
-                sql += "TABS.TABLE_NAME = '" + tables.get(i).getTableName() + "' AND ";
-                sql += "TABS.OWNER = '" + tables.get(i).getSchema() + "'";
+                sql += "TABS.TABLE_NAME = ? AND ";
+                sql += "TABS.OWNER = ?";
                 sql += ")\n";
+                statementValues.add(tables.get(i).getTableName());
+                statementValues.add(tables.get(i).getSchema());
             }
         }
-        return sql;
+        PreparedStatement stmt = connection.prepareStatement(sql);
+        for (int i = 0; i < statementValues.size(); i++) {
+            stmt.setString(i + 1, statementValues.get(i));
+        }
+        return stmt;
     }
 
     public static String columnNameSanitizer(String columnName) {

@@ -1,0 +1,12 @@
+{
+  "parameters": {
+    "outputFile": "/code/tables.json",
+    "tables": [
+      {
+        "tableName": "REGIONS",
+        "schema": "HR"
+      }
+    ],
+    "includeColumns": false
+  }
+}
