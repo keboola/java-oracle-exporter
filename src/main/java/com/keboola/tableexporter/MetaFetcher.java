@@ -111,7 +111,7 @@ public class MetaFetcher {
         String type = resultSet.getString("DATA_TYPE");
         if (type == "NUMBER") {
             if (resultSet.getString("DATA_PRECISION") != null) {
-                String length = resultSet.getString("DATA_PRECISION")
+                String length = resultSet.getString("DATA_PRECISION");
                 if (resultSet.getString("DATA_SCALE") != null) {
                     length += "," + resultSet.getString("DATA_SCALE");
                 }
@@ -120,7 +120,7 @@ public class MetaFetcher {
                 return null;
             }
         } else {
-            return resultSet.getString("DATA_LENGTH");
+            return resultSet.getString("CHAR_LENGTH");
         }
     }
 
@@ -197,7 +197,7 @@ public class MetaFetcher {
                 "    TABS.OWNER ,\n" +
                 "    TABS.NUM_ROWS ,\n" +
                 "    COLS.COLUMN_NAME ,\n" +
-                "    COLS.DATA_LENGTH ,\n" +
+                "    COLS.CHAR_LENGTH ,\n" +
                 "    COLS.DATA_PRECISION ,\n" +
                 "    COLS.DATA_SCALE ,\n" +
                 "    COLS.COLUMN_ID ,\n" +
