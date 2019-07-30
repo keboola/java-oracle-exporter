@@ -108,14 +108,20 @@ public class MetaFetcher {
 
     public String getColumnLength(ResultSet resultSet) throws SQLException
     {
-        String length = resultSet.getString("DATA_LENGTH");
-        if (resultSet.getString("DATA_PRECISION") != null
-                && resultSet.getString("DATA_SCALE") != null)
-        {
-            length = resultSet.getString("DATA_PRECISION")
-                    + "," + resultSet.getString("DATA_SCALE");
+        String type = resultSet.getString("DATA_TYPE");
+        if (type == "NUMBER") {
+            if (resultSet.getString("DATA_PRECISION") != null) {
+                String length = resultSet.getString("DATA_PRECISION")
+                if (resultSet.getString("DATA_SCALE") != null) {
+                    length += "," + resultSet.getString("DATA_SCALE");
+                }
+                return length;
+            } else {
+                return null;
+            }
+        } else {
+            return resultSet.getString("DATA_LENGTH");
         }
-        return length;
     }
 
     public void writeListingToJsonFile(TreeMap output, String outputFile) throws UserException
