@@ -108,14 +108,17 @@ public class MetaFetcher {
 
     public String getColumnLength(ResultSet resultSet) throws SQLException
     {
-        String length = resultSet.getString("DATA_LENGTH");
-        if (resultSet.getString("DATA_PRECISION") != null
-                && resultSet.getString("DATA_SCALE") != null)
-        {
-            length = resultSet.getString("DATA_PRECISION")
-                    + "," + resultSet.getString("DATA_SCALE");
+        String[] charTypes = {"CHAR", "NCHAR", "VARCHAR2", "NVARCHAR2"};
+        if (resultSet.getString("DATA_PRECISION") != null) {
+            String length = resultSet.getString("DATA_PRECISION");
+            if (resultSet.getString("DATA_SCALE") != null) {
+                length += "," + resultSet.getString("DATA_SCALE");
+            }
+            return length;
+        } else if (Arrays.asList(charTypes).contains(resultSet.getString("DATA_TYPE"))) {
+            return resultSet.getString("CHAR_LENGTH");
         }
-        return length;
+        return null;
     }
 
     public void writeListingToJsonFile(TreeMap output, String outputFile) throws UserException
@@ -191,7 +194,7 @@ public class MetaFetcher {
                 "    TABS.OWNER ,\n" +
                 "    TABS.NUM_ROWS ,\n" +
                 "    COLS.COLUMN_NAME ,\n" +
-                "    COLS.DATA_LENGTH ,\n" +
+                "    COLS.CHAR_LENGTH ,\n" +
                 "    COLS.DATA_PRECISION ,\n" +
                 "    COLS.DATA_SCALE ,\n" +
                 "    COLS.COLUMN_ID ,\n" +

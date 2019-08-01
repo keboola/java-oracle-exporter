@@ -47,14 +47,14 @@ public class ColumnDataTest extends BaseTest {
                 when(resultSetMock.getString("COLUMN_NAME")).thenReturn("column_name");
                 when(resultSetMock.getString("DATA_TYPE")).thenReturn("VARCHAR2");
                 when(resultSetMock.getInt("COLUMN_ID")).thenReturn(1);
-                when(resultSetMock.getString("DATA_LENGTH")).thenReturn("32");
+                when(resultSetMock.getString("CHAR_LENGTH")).thenReturn("32");
                 when(resultSetMock.getString("NULLABLE")).thenReturn("N");
                 break;
             case "nullableTest":
                 when(resultSetMock.getString("COLUMN_NAME")).thenReturn("column_name");
                 when(resultSetMock.getString("DATA_TYPE")).thenReturn("VARCHAR2");
                 when(resultSetMock.getInt("COLUMN_ID")).thenReturn(1);
-                when(resultSetMock.getString("DATA_LENGTH")).thenReturn("32");
+                when(resultSetMock.getString("CHAR_LENGTH")).thenReturn("32");
                 when(resultSetMock.getString("NULLABLE")).thenReturn("Y");
                 break;
         }

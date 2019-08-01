@@ -46,7 +46,7 @@ public class LengthTest extends BaseTest {
         switch (testName) {
             case "varcharTest":
                 when(resultSetMock.getString("DATA_TYPE")).thenReturn("VARCHAR2");
-                when(resultSetMock.getString("DATA_LENGTH")).thenReturn("64");
+                when(resultSetMock.getString("CHAR_LENGTH")).thenReturn("64");
                 break;
             case "decimalTest":
                 when(resultSetMock.getString("DATA_TYPE")).thenReturn("DECIMAL");
@@ -55,7 +55,7 @@ public class LengthTest extends BaseTest {
                 break;
             case "noLengthTest":
                 when(resultSetMock.getString("DATA_TYPE")).thenReturn("DATE");
-                when(resultSetMock.getString("DATA_LENGTH")).thenReturn(null);
+                when(resultSetMock.getString("CHAR_LENGTH")).thenReturn(null);
                 break;
         }
         return resultSetMock;
