@@ -39,7 +39,7 @@ public class TestConnectionTest extends BaseTest {
 
         String expectedLog = "executing action testConnection\n" +
                 "Processing configuration file " + tmpFile + "\n" +
-                "Connecting user system to database xe at oracle\n" +
+                "Connecting user system to database xe at oracle on port 1521\n" +
                 "All done\n";
         assertEquals(expectedLog, systemOutRule.getLog());
     }
