@@ -76,7 +76,7 @@ public class Application {
         connectionProps.put("defaultRowPrefetch", "50");
         try {
             connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
-            System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost);
+            System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
             connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
         } catch (SQLException ex) {
             connectionString.setLength(0);
