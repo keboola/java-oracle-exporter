@@ -21,7 +21,7 @@ services:
       - oracle
 
   oracle:
-    image: wnameless/oracle-xe-11g
+    image: wnameless/oracle-xe-11g-r2
     ports:
       - "8080:8080"
       - "1521:1521"
