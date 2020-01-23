@@ -38,7 +38,7 @@ public class Application {
             throw new ApplicationException("Configuration file is invalid", ex);
         }
         JSONObject obj = new JSONObject(jsonString);
-        dbPort = obj.getJSONObject("parameters").getJSONObject("db").getString("port");
+        dbPort = obj.getJSONObject("parameters").getJSONObject("db").get("port").toString();
         dbHost = obj.getJSONObject("parameters").getJSONObject("db").getString("host");
         dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
         dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
