@@ -1,2 +1,6 @@
 language: bash
-script: docker-compose build
+
+install:
+  - docker-compose build
+script:
+  - docker-compose run --rm tests
