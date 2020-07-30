@@ -69,21 +69,32 @@ public class Application {
             throw new ApplicationException("Driver error", ex);
         }
         StringBuilder connectionString = new StringBuilder();
-        Properties connectionProps = new Properties();
-        connectionProps.put("user", dbUser);
-        connectionProps.put("password", dbPassword);
-        connectionProps.put("useFetchSizeWithLongColumn", "true");
-        connectionProps.put("defaultRowPrefetch", "50");
+        Properties props = new Properties();
+        props.setProperty("user", dbUser);
+        props.setProperty("password", dbPassword);
+        //System.setProperty("javax.net.debug", "all");
+        //Properties connectionProps = new Properties();
+        //connectionProps.put("user", dbUser);
+        //connectionProps.put("password", dbPassword);
+        //connectionProps.put("useFetchSizeWithLongColumn", "true");
+        //onnectionProps.put("defaultRowPrefetch", "50");
+
+        // Set the trust store, type, and password
+        //connectionProps.put("oracle.net.ssl_cipher_suites", "(SSL_DH_anon_WITH_3DES_EDE_CBC_SHA, SSL_DH_anon_WITH_RC4_128_MD5, SSL_DH_anon_WITH_DES_CBC_SHA)");
+        //connectionProps.put("oracle.net.ssl_server_dn_match", true);
+        //connectionProps.put("javax.net.ssl.trustStore","/code/src/test/ssl/certs/wallet.client/ewallet.p12");
+        //connectionProps.put("javax.net.ssl.trustStoreType","PKCS12");
+        //connectionProps.put("javax.net.ssl.trustStorePassword","Passw0rd");
         try {
-            connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
+            String url = "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=oracle)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)))";
+            connection = DriverManager.getConnection(url,props);
             System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
-            connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
         } catch (SQLException ex) {
             connectionString.setLength(0);
             connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append("/").append(dbName);
             try {
                 System.out.println("Trying again as service name instead of SID. Previous error was: " + ex.getMessage());
-                connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
+                connection = DriverManager.getConnection(connectionString.toString(), props);
             } catch (SQLException e) {
                 throw new UserException("Connection error: " + e.getMessage(), e);
             }

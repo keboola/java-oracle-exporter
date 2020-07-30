@@ -1,0 +1,9 @@
+FROM wnameless/oracle-xe-11g-r2
+
+RUN apt-get update && apt-get -y install openssl
+
+#COPY ./docker/tnsnames.ora /u01/app/oracle/product/11.2.0/xe/network/admin/tnsnames.ora
+COPY ./docker/listener.ora /u01/app/oracle/product/11.2.0/xe/network/admin/listener.ora
+COPY ./docker/sqlnet.ora /u01/app/oracle/product/11.2.0/xe/network/admin/sqlnet.ora
+
+COPY ./src/test/ssl/certs/wallet.server/ewallet.p12 /u01/keystore/ewallet.p12

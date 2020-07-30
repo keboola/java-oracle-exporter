@@ -22,6 +22,9 @@ services:
 
   oracle:
     image: wnameless/oracle-xe-11g-r2
+    build:
+      context: .
+      dockerfile: Dockerfile-oracle
     ports:
       - "8080:8080"
       - "1521:1521"
