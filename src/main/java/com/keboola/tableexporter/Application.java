@@ -72,6 +72,7 @@ public class Application {
         Properties props = new Properties();
         props.setProperty("user", dbUser);
         props.setProperty("password", dbPassword);
+        System.setProperty("oracle.net.tns_admin", "/code/docker/");
         //System.setProperty("javax.net.debug", "all");
         //Properties connectionProps = new Properties();
         //connectionProps.put("user", dbUser);
@@ -80,13 +81,12 @@ public class Application {
         //onnectionProps.put("defaultRowPrefetch", "50");
 
         // Set the trust store, type, and password
-        //connectionProps.put("oracle.net.ssl_cipher_suites", "(SSL_DH_anon_WITH_3DES_EDE_CBC_SHA, SSL_DH_anon_WITH_RC4_128_MD5, SSL_DH_anon_WITH_DES_CBC_SHA)");
-        //connectionProps.put("oracle.net.ssl_server_dn_match", true);
+        props.setProperty("oracle.net.ssl_cipher_suites", "(SSL_DH_anon_WITH_3DES_EDE_CBC_SHA, SSL_DH_anon_WITH_RC4_128_MD5, SSL_DH_anon_WITH_DES_CBC_SHA)");
         //connectionProps.put("javax.net.ssl.trustStore","/code/src/test/ssl/certs/wallet.client/ewallet.p12");
         //connectionProps.put("javax.net.ssl.trustStoreType","PKCS12");
         //connectionProps.put("javax.net.ssl.trustStorePassword","Passw0rd");
         try {
-            String url = "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=tcps)(HOST=oracle)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)))";
+            String url = "jdbc:oracle:thin:@XE";
             connection = DriverManager.getConnection(url,props);
             System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
         } catch (SQLException ex) {

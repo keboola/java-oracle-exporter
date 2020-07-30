@@ -1,19 +1,8 @@
 XE =
   (DESCRIPTION =
-    (ADDRESS = (PROTOCOL = TCPS)(HOST=0.0.0.0)(PORT = 2484))
+    (ADDRESS = (PROTOCOL = TCPS)(HOST=oracle)(PORT = 1521))
     (CONNECT_DATA =
       (SERVER = DEDICATED)
       (SERVICE_NAME = XE)
-    )
-  )
-
-EXTPROC_CONNECTION_DATA =
-  (DESCRIPTION =
-    (ADDRESS_LIST =
-      (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC_FOR_XE))
-    )
-    (CONNECT_DATA =
-      (SID = PLSExtProc)
-      (PRESENTATION = RO)
     )
   )
