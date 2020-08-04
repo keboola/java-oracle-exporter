@@ -21,6 +21,8 @@ public class Application {
     private static String dbName;
     private static String query;
     private static String outputFile;
+    private static String tnsnamesPath;
+    private static String tnsnamesService;
     private static ArrayList<TableDefinition> tables;
     private static Connection connection;
     private static boolean includeHeader;
@@ -38,11 +40,18 @@ public class Application {
             throw new ApplicationException("Configuration file is invalid", ex);
         }
         JSONObject obj = new JSONObject(jsonString);
-        dbPort = obj.getJSONObject("parameters").getJSONObject("db").get("port").toString();
-        dbHost = obj.getJSONObject("parameters").getJSONObject("db").getString("host");
+        if (obj.getJSONObject("parameters").getJSONObject("db").has("port")) {
+            dbPort = obj.getJSONObject("parameters").getJSONObject("db").get("port").toString();
+        }
+        if (obj.getJSONObject("parameters").getJSONObject("db").has("host")) {
+            dbHost = obj.getJSONObject("parameters").getJSONObject("db").getString("host");
+        }
         dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
         dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
         dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
+        if (obj.getJSONObject("parameters").getJSONObject("db").has("tnsnamesService")) {
+            tnsnamesService = obj.getJSONObject("parameters").getJSONObject("db").getString("tnsnamesService");
+        }
         if (obj.getJSONObject("parameters").has("outputFile")) {
             outputFile = obj.getJSONObject("parameters").getString("outputFile");
         }
@@ -74,18 +83,30 @@ public class Application {
         connectionProps.put("password", dbPassword);
         connectionProps.put("useFetchSizeWithLongColumn", "true");
         connectionProps.put("defaultRowPrefetch", "50");
-        try {
-            connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
-            System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
-            connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
-        } catch (SQLException ex) {
-            connectionString.setLength(0);
-            connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append("/").append(dbName);
+
+        if (tnsnamesPath.equals("")) {
             try {
-                System.out.println("Trying again as service name instead of SID. Previous error was: " + ex.getMessage());
+                connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
+                System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
                 connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
-            } catch (SQLException e) {
-                throw new UserException("Connection error: " + e.getMessage(), e);
+            } catch (SQLException ex) {
+                connectionString.setLength(0);
+                connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append("/").append(dbName);
+                try {
+                    System.out.println("Trying again as service name instead of SID. Previous error was: " + ex.getMessage());
+                    connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
+                } catch (SQLException e) {
+                    throw new UserException("Connection error: " + e.getMessage(), e);
+                }
+            }
+        } else {
+            System.setProperty("oracle.net.tns_admin", tnsnamesPath);
+            try {
+                connectionString.append("jdbc:oracle:thin:@").append(tnsnamesService);
+                System.out.println("Connecting user " + dbUser + ". Using service name " + tnsnamesService + " from tnsnames.ora.");
+                connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
+            } catch (SQLException ex) {
+                throw new UserException("Connection error: " + ex.getMessage(), ex);
             }
         }
     }
@@ -126,6 +147,10 @@ public class Application {
             String action = args[0];
             System.out.println("executing action " + action);
             readConfigFile(args[1]);
+            tnsnamesPath = "";
+            if (args.length > 2) {
+                tnsnamesPath = args[2];
+            }
             switch (action) {
                 case "testConnection":
                     connectDb();
@@ -139,8 +164,8 @@ public class Application {
                     break;
                 case "export":
                     includeHeader = true;
-                    if (args.length > 2) {
-                        includeHeader = Boolean.parseBoolean(args[2]);
+                    if (args.length > 3) {
+                        includeHeader = Boolean.parseBoolean(args[3]);
                     }
                     connectDb();
                     fetchData();
