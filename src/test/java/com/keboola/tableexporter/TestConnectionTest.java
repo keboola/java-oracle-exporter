@@ -24,7 +24,28 @@ public class TestConnectionTest extends BaseTest {
     public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
     @Test
-    public void testTestConnection() throws IOException, URISyntaxException, ApplicationException {
+    public void testTestConnectionTnsnames() throws IOException, URISyntaxException, ApplicationException {
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        Application app = new Application();
+
+        URI configUri = classLoader.getResource("testConnection/testConnectionConfig.json").toURI();
+
+        String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
+
+        String[] args = {"testConnection", tmpFile, createTemporaryTnsnameFile()};
+
+        app.main(args);
+
+        String expectedLog = "executing action testConnection\n" +
+                "Processing configuration file " + tmpFile + "\n" +
+                "Connecting user system. Using service name XE from tnsnames.ora.\n" +
+                "All done\n";
+        assertEquals(expectedLog, systemOutRule.getLog());
+    }
+
+    @Test
+    public void testTestConnectionCredentials() throws IOException, URISyntaxException, ApplicationException {
         ClassLoader classLoader = getClass().getClassLoader();
 
         Application app = new Application();
@@ -39,7 +60,7 @@ public class TestConnectionTest extends BaseTest {
 
         String expectedLog = "executing action testConnection\n" +
                 "Processing configuration file " + tmpFile + "\n" +
-                "Connecting user system to database xe at oracle on port 1521\n" +
+                "Connecting user system to database XE at oracle on port 1521\n" +
                 "All done\n";
         assertEquals(expectedLog, systemOutRule.getLog());
     }

@@ -15,7 +15,7 @@ services:
       DB_PORT: 1521
       DB_USER: system
       DB_PASSWORD: oracle
-      DB_DATABASE: xe    
+      DB_DATABASE: XE
     command: /code/start.sh
     links:
       - oracle

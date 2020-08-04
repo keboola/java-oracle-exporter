@@ -9,8 +9,9 @@ import org.json.JSONObject;
 import org.junit.AfterClass;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -42,6 +43,16 @@ public class BaseTest {
         return outputConfigFile.getAbsolutePath();
     }
 
+    protected String createTemporaryTnsnameFile() throws IOException {
+        Path dir = Files.createTempDirectory("tnsnames");
+        Path fileToCreatePath = dir.resolve("tnsnames.ora");
+        Path outputFile = Files.createFile(fileToCreatePath);
+
+        String content = "XE = (DESCRIPTION = (ADDRESS = (PROTOCOL = tcp)(HOST=" + System.getenv("DB_HOST") + ")(PORT = " + System.getenv("DB_PORT") + "))(CONNECT_DATA = (SID = " + System.getenv("DB_DATABASE") + ")(SERVICE_NAME = XE)))";
+        writeTnsnamesToFile(content, outputFile.toString());
+        return dir.toString();
+    }
+
     protected JSONObject getJsonConfigFromFile(String fileName) throws IOException {
         String jsonString;
         byte[] encoded;
@@ -56,6 +67,12 @@ public class BaseTest {
         }
     }
 
+    protected void writeTnsnamesToFile(String content, String fileName) throws IOException {
+        try (FileWriter file = new FileWriter(fileName)) {
+            file.write(content);
+        }
+    }
+
     protected JSONObject getDbJsonNode() {
         JSONObject dbNode = new JSONObject();
 
@@ -64,6 +81,7 @@ public class BaseTest {
         dbNode.put("user", System.getenv("DB_USER"));
         dbNode.put("#password", System.getenv("DB_PASSWORD"));
         dbNode.put("database", System.getenv("DB_DATABASE"));
+        dbNode.put("tnsnamesService", "XE");
 
         return dbNode;
     }

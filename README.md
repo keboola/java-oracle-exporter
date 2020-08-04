@@ -20,18 +20,24 @@ jar usage:
 - export command
 outputs file to `output/data.csv`
 ```
-java -jar table-exporter.jar export /path/to/my/configFile.json true
+java -jar table-exporter.jar export /path/to/my/configFile.json /path/to/my/tnsnames.ora true
 ```
+- export command output files `output/data.csv` without using tnsnames.ora
+```
+java -jar table-exporter.jar export /path/to/my/configFile.json "" true
+```
+
+
 - testConnection
 returns exit code 0 if connection successful, otherwise returns the exit code of the internal error
 ```
-java -jar table-exporter.jar testConnection /path/to/my/configFile.json
+java -jar table-exporter.jar testConnection /path/to/my/configFile.json /path/to/my/tnsnames.ora
 ```
 
 - getTables
 outputs file to `output/tables.json`
 ```
-java -jar table-exporter.jar getTables /path/to/my/configFile.json
+java -jar table-exporter.jar getTables /path/to/my/configFile.json /path/to/my/tnsnames.ora
 ```
 
 arguments:
