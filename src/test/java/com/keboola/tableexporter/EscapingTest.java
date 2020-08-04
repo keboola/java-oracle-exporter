@@ -66,7 +66,7 @@ public class EscapingTest extends BaseTest {
 
         URI configUri = classLoader.getResource("escaping/config.json").toURI();
         String tmpFile = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
-        String[] args = {"export", tmpFile, "false"};
+        String[] args = {"export", tmpFile, "", "false"};
         app.main(args);
 
         File output = new File(outputFile);
