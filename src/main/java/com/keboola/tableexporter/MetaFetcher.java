@@ -162,6 +162,9 @@ public class MetaFetcher {
                 "        AND all_tables.OWNER != 'SYS'\n" +
                 "        AND all_tables.OWNER != 'SYSTEM'\n" +
                 "        UNION ALL\n" +
+                "        SELECT VIEW_NAME, '', OWNER, 0 FROM ALL_VIEWS \n" +
+                "        WHERE OWNER NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')\n" +
+                "        UNION ALL\n" +
                 "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
                 "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n";
 
@@ -218,6 +221,9 @@ public class MetaFetcher {
                 "        AND all_tables.TABLESPACE_NAME != 'SYSTEM'\n" +
                 "        AND all_tables.OWNER != 'SYS'\n" +
                 "        AND all_tables.OWNER != 'SYSTEM'\n" +
+                "        UNION ALL\n" +
+                "        SELECT VIEW_NAME, '', OWNER, 0 FROM ALL_VIEWS \n" +
+                "        WHERE OWNER NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')\n" +
                 "        UNION ALL\n" +
                 "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
                 "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n" +

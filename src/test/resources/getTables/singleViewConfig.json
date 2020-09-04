@@ -1,0 +1,11 @@
+{
+  "parameters": {
+    "outputFile": "/code/tables.json",
+    "tables": [
+      {
+        "tableName": "EMP_DETAILS_VIEW",
+        "schema": "HR"
+      }
+    ]
+  }
+}
