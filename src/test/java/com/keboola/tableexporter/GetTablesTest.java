@@ -53,6 +53,26 @@ public class GetTablesTest extends BaseTest {
     }
 
     @Test
+    public void testGetSingleView() throws IOException, URISyntaxException, ApplicationException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File expectedFile = new File(classLoader.getResource("getTables/expectedSingleViewResults.json").toURI());
+
+        Application app = new Application();
+
+        URI configUri = classLoader.getResource("getTables/singleViewConfig.json").toURI();
+
+        String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
+
+        String[] args = {"getTables", tmpFile};
+        app.main(args);
+
+        File output = new File("tables.json");
+
+        assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
+    }
+
+
+    @Test
     public void testGetOnlyTables() throws IOException, URISyntaxException, ApplicationException {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("getTables/expectedOnlyTablesResults.json").toURI());
