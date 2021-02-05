@@ -10,25 +10,27 @@ import java.util.*;
 import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
 import com.keboola.tableexporter.exception.UserException;
+import oracle.jdbc.OracleConnection;
 import org.json.JSONObject;
 
 public class Application {
 
-    private static String dbPort;
-    private static String dbHost;
-    private static String dbUser;
-    private static String dbPassword;
-    private static String dbName;
-    private static String query;
-    private static String outputFile;
-    private static String tnsnamesPath;
-    private static String tnsnamesService;
+    private String dbPort;
+    private String dbHost;
+    private String dbUser;
+    private String dbProxyUser;
+    private String dbPassword;
+    private String dbName;
+    private String query;
+    private String outputFile;
+    private String tnsnamesPath;
+    private String tnsnamesService;
     private static ArrayList<TableDefinition> tables;
-    private static Connection connection;
+    private static OracleConnection connection;
     private static boolean includeHeader;
     private static boolean includeColumns;
-    
-    private static void readConfigFile(String configFile) throws ApplicationException {
+
+    private void readConfigFile(String configFile) throws ApplicationException {
         System.out.println("Processing configuration file " + configFile);
         String jsonString;
         try {
@@ -47,6 +49,9 @@ public class Application {
             dbHost = obj.getJSONObject("parameters").getJSONObject("db").getString("host");
         }
         dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
+        if (obj.getJSONObject("parameters").getJSONObject("db").has("proxyUser")) {
+            dbProxyUser = obj.getJSONObject("parameters").getJSONObject("db").getString("proxyUser");
+        }
         dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
         dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
         if (obj.getJSONObject("parameters").getJSONObject("db").has("tnsnamesService")) {
@@ -69,9 +74,9 @@ public class Application {
         if (obj.getJSONObject("parameters").has("includeColumns")) {
             includeColumns = obj.getJSONObject("parameters").getBoolean("includeColumns");
         }
-    }    
-    
-    private static void connectDb() throws ApplicationException, UserException {
+    }
+
+    private void connectDb() throws ApplicationException, UserException {
         try {
             DriverManager.registerDriver(new oracle.jdbc.OracleDriver());
         } catch (SQLException ex) {
@@ -88,13 +93,13 @@ public class Application {
             try {
                 connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
                 System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
-                connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
+                connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
                 connectionString.setLength(0);
                 connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append("/").append(dbName);
                 try {
                     System.out.println("Trying again as service name instead of SID. Previous error was: " + ex.getMessage());
-                    connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
+                    connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
                 } catch (SQLException e) {
                     throw new UserException("Connection error: " + e.getMessage(), e);
                 }
@@ -104,14 +109,27 @@ public class Application {
             try {
                 connectionString.append("jdbc:oracle:thin:@").append(tnsnamesService);
                 System.out.println("Connecting user " + dbUser + ". Using service name " + tnsnamesService + " from tnsnames.ora.");
-                connection = DriverManager.getConnection(connectionString.toString(), connectionProps);
+                connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
                 throw new UserException("Connection error: " + ex.getMessage(), ex);
             }
         }
+
+        // Proxy user
+        if (dbProxyUser != null) {
+            java.util.Properties proxyProp = new java.util.Properties();
+            proxyProp.put(OracleConnection.PROXY_USER_NAME, dbProxyUser);
+            System.out.println("Proxy user = \"" + dbProxyUser + "\"");
+
+            try {
+                connection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, proxyProp);
+            } catch (SQLException ex) {
+                throw new UserException("Proxy user error: " + ex.getMessage(), ex);
+            }
+        }
     }
 
-    private static void fetchData() throws UserException {
+    private void fetchData() throws UserException {
         System.out.println("Fetching data");
         try {
             final long start = System.nanoTime();
@@ -141,8 +159,8 @@ public class Application {
             throw new UserException("IO Exception: " + ex.getMessage(), ex);
         }
     }
-    
-    public static void main(String[] args) {
+
+    public void run(String[] args) {
         try {
             String action = args[0];
             System.out.println("executing action " + action);
@@ -200,5 +218,10 @@ public class Application {
                 connection.close();
             } catch (Throwable e) {}
         }
+    }
+
+    public static void main(String[] args) {
+        Application app = new Application();
+        app.run(args);
     }
 }

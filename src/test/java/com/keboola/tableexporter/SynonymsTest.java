@@ -20,8 +20,6 @@ public class SynonymsTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("getTables/expectedResultsWithSynonyms.json").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("getTables/config.json").toURI();
 
         String tmpFile = createTemporaryConfigFileWithDifferentCredentials(Paths.get(configUri).toAbsolutePath().toString());
@@ -30,7 +28,7 @@ public class SynonymsTest extends BaseTest {
 
         setupSynonyms();
 
-        app.main(args);
+        Application.main(args);
 
         File output = new File("tables.json");
 

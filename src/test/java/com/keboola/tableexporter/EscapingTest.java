@@ -26,15 +26,13 @@ public class EscapingTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("escaping/escaping.csv").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("escaping/config.json").toURI();
         String tmpFile = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
         String[] args = {"export", tmpFile};
-        app.main(args);
+        Application.main(args);
 
         File output = new File(outputFile);
-        
+
         assertTrue("The files differ!", FileUtils.contentEqualsIgnoreEOL(expectedFile, output, "UTF-8"));
     }
 
@@ -44,12 +42,10 @@ public class EscapingTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("escaping/emptyResult.csv").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("escaping/emptyResultConfig.json").toURI();
         String tmpFile = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
         String[] args = {"export", tmpFile};
-        app.main(args);
+        Application.main(args);
 
         File output = new File(outputFile);
 
@@ -62,12 +58,10 @@ public class EscapingTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("escaping/headerless-escaping.csv").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("escaping/config.json").toURI();
         String tmpFile = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
         String[] args = {"export", tmpFile, "", "false"};
-        app.main(args);
+        Application.main(args);
 
         File output = new File(outputFile);
 

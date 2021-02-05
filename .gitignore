@@ -4,6 +4,7 @@
 /data/config.json
 /TableExporter.iml
 /build
+/tmp
 .env
 tables.json
 tmp.json

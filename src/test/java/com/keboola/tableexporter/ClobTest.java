@@ -26,12 +26,10 @@ public class ClobTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("clob/clobtest.csv").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("clob/config.json").toURI();
         String tmpFile = createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
         String[] args = {"export", tmpFile};
-        app.main(args);
+        Application.main(args);
 
         File output = new File(outputFile);
 
