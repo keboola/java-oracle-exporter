@@ -19,14 +19,12 @@ public class GetTablesTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("getTables/expectedResults.json").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("getTables/config.json").toURI();
 
         String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
 
         String[] args = {"getTables", tmpFile};
-        app.main(args);
+        Application.main(args);
 
         File output = new File("tables.json");
 
@@ -38,14 +36,12 @@ public class GetTablesTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("getTables/expectedSingleTableResults.json").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("getTables/singleTableConfig.json").toURI();
 
         String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
 
         String[] args = {"getTables", tmpFile};
-        app.main(args);
+        Application.main(args);
 
         File output = new File("tables.json");
 
@@ -57,14 +53,12 @@ public class GetTablesTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("getTables/expectedSingleViewResults.json").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("getTables/singleViewConfig.json").toURI();
 
         String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
 
         String[] args = {"getTables", tmpFile};
-        app.main(args);
+        Application.main(args);
 
         File output = new File("tables.json");
 
@@ -77,14 +71,12 @@ public class GetTablesTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("getTables/expectedOnlyTablesResults.json").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("getTables/onlyTablesConfig.json").toURI();
 
         String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
 
         String[] args = {"getTables", tmpFile};
-        app.main(args);
+        Application.main(args);
 
         File output = new File("tables.json");
 
@@ -96,14 +88,12 @@ public class GetTablesTest extends BaseTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File expectedFile = new File(classLoader.getResource("getTables/expectedSingleTableNoColumnsResults.json").toURI());
 
-        Application app = new Application();
-
         URI configUri = classLoader.getResource("getTables/singleTableNoColumnsConfig.json").toURI();
 
         String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
 
         String[] args = {"getTables", tmpFile};
-        app.main(args);
+        Application.main(args);
 
         File output = new File("tables.json");
 

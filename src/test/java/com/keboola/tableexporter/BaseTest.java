@@ -6,12 +6,18 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.contrib.java.lang.system.SystemErrRule;
+import org.junit.contrib.java.lang.system.SystemOutRule;
 
 import java.io.*;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.Permission;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -28,6 +34,56 @@ public class BaseTest {
     private static String dbDatabase;
     protected static String outputFile;
     private static Connection connection;
+    protected SecurityManager securityManager;
+
+    protected static class ExitException extends SecurityException
+    {
+        public final int status;
+        public ExitException(int status)
+        {
+            super("Exit called.");
+            this.status = status;
+        }
+    }
+
+    private static class NoExitSecurityManager extends SecurityManager
+    {
+        @Override
+        public void checkPermission(Permission perm)
+        {
+            // allow anything.
+        }
+        @Override
+        public void checkPermission(Permission perm, Object context)
+        {
+            // allow anything.
+        }
+        @Override
+        public void checkExit(int status)
+        {
+            super.checkExit(status);
+            throw new ExitException(status);
+        }
+    }
+
+    @Before
+    public void setUp() throws Exception
+    {
+        securityManager = System.getSecurityManager();
+        System.setSecurityManager(new NoExitSecurityManager());
+    }
+
+    @After
+    public void tearDown() throws Exception
+    {
+        System.setSecurityManager(securityManager); // restore
+    }
+
+    @Rule
+    public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
+
+    @Rule
+    public final SystemErrRule systemErrRule = new SystemErrRule().enableLog();
 
     protected String createTemporaryConfigFile(String inputConfigFile) throws IOException, ApplicationException {
         JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
