@@ -157,10 +157,13 @@ public class MetaFetcher {
                 "        OWNER, \n" +
                 "        NUM_ROWS\n" +
                 "        FROM all_tables\n" +
-                "        WHERE all_tables.TABLESPACE_NAME != 'SYSAUX'\n" +
-                "        AND all_tables.TABLESPACE_NAME != 'SYSTEM'\n" +
-                "        AND all_tables.OWNER != 'SYS'\n" +
-                "        AND all_tables.OWNER != 'SYSTEM'\n" +
+                "        WHERE 1=1\n" +
+                "        AND (\n" +
+                "           all_tables.TABLESPACE_NAME IS NULL\n" +
+                "           OR all_tables.TABLESPACE_NAME NOT IN ('SYSAUX', 'SYSTEM')\n" +
+                "        )\n" +
+                "        AND all_tables.OWNER " +
+                "           NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')\n" +
                 "        UNION ALL\n" +
                 "        SELECT VIEW_NAME, '', OWNER, 0 FROM ALL_VIEWS \n" +
                 "        WHERE OWNER NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')\n" +
@@ -217,10 +220,13 @@ public class MetaFetcher {
                 "        OWNER , \n" +
                 "        NUM_ROWS\n" +
                 "        FROM all_tables\n" +
-                "        WHERE all_tables.TABLESPACE_NAME != 'SYSAUX'\n" +
-                "        AND all_tables.TABLESPACE_NAME != 'SYSTEM'\n" +
-                "        AND all_tables.OWNER != 'SYS'\n" +
-                "        AND all_tables.OWNER != 'SYSTEM'\n" +
+                "        WHERE 1=1\n" +
+                "        AND (\n" +
+                "           all_tables.TABLESPACE_NAME IS NULL\n" +
+                "           OR all_tables.TABLESPACE_NAME NOT IN ('SYSAUX', 'SYSTEM')\n" +
+                "        )\n" +
+                "        AND all_tables.OWNER " +
+                "           NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')" +
                 "        UNION ALL\n" +
                 "        SELECT VIEW_NAME, '', OWNER, 0 FROM ALL_VIEWS \n" +
                 "        WHERE OWNER NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')\n" +
