@@ -13,6 +13,8 @@ public class MetaFetcher {
 
     private Connection connection;
 
+    private final String systemOwners = "('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'WMSYS', 'XDB', 'APEX_040000')";
+
     public MetaFetcher(Connection connection) {
         this.connection = connection;
     }
@@ -163,10 +165,10 @@ public class MetaFetcher {
                 "           OR all_tables.TABLESPACE_NAME NOT IN ('SYSAUX', 'SYSTEM')\n" +
                 "        )\n" +
                 "        AND all_tables.OWNER " +
-                "           NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')\n" +
+                "           NOT IN " + systemOwners + "\n" +
                 "        UNION ALL\n" +
                 "        SELECT VIEW_NAME, '', OWNER, 0 FROM ALL_VIEWS \n" +
-                "        WHERE OWNER NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')\n" +
+                "        WHERE OWNER NOT IN " + systemOwners +"\n" +
                 "        UNION ALL\n" +
                 "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
                 "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n";
@@ -226,10 +228,10 @@ public class MetaFetcher {
                 "           OR all_tables.TABLESPACE_NAME NOT IN ('SYSAUX', 'SYSTEM')\n" +
                 "        )\n" +
                 "        AND all_tables.OWNER " +
-                "           NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')" +
+                "           NOT IN " + systemOwners + "\n" +
                 "        UNION ALL\n" +
                 "        SELECT VIEW_NAME, '', OWNER, 0 FROM ALL_VIEWS \n" +
-                "        WHERE OWNER NOT IN ('SYS', 'SYSTEM', 'MDSYS', 'DMSYS', 'CTXSYS', 'XDB', 'APEX_040000')\n" +
+                "        WHERE OWNER NOT IN " + systemOwners + "\n" +
                 "        UNION ALL\n" +
                 "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
                 "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n" +
