@@ -25,6 +25,7 @@ public class Application {
     private String outputFile;
     private String tnsnamesPath;
     private String tnsnamesService;
+    private String defaultRowPrefetch = "50";
     private static ArrayList<TableDefinition> tables;
     private static OracleConnection connection;
     private static boolean includeHeader;
@@ -57,6 +58,9 @@ public class Application {
         if (obj.getJSONObject("parameters").getJSONObject("db").has("tnsnamesService")) {
             tnsnamesService = obj.getJSONObject("parameters").getJSONObject("db").getString("tnsnamesService");
         }
+        if (obj.getJSONObject("parameters").getJSONObject("db").has("defaultRowPrefetch")) {
+            defaultRowPrefetch = obj.getJSONObject("parameters").getJSONObject("db").getString("defaultRowPrefetch");
+        }
         if (obj.getJSONObject("parameters").has("outputFile")) {
             outputFile = obj.getJSONObject("parameters").getString("outputFile");
         }
@@ -87,7 +91,7 @@ public class Application {
         connectionProps.put("user", dbUser);
         connectionProps.put("password", dbPassword);
         connectionProps.put("useFetchSizeWithLongColumn", "true");
-        connectionProps.put("defaultRowPrefetch", "50");
+        connectionProps.put("defaultRowPrefetch", defaultRowPrefetch);
 
         if (tnsnamesPath.equals("")) {
             try {
