@@ -95,12 +95,12 @@ public class Application {
 
         if (tnsnamesPath.equals("")) {
             try {
-                connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
+                connectionString.append("jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN))").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
                 System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
                 connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
                 connectionString.setLength(0);
-                connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append("/").append(dbName);
+                connectionString.append("jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN))").append(dbHost).append(":").append(dbPort).append("/").append(dbName);
                 try {
                     System.out.println("Trying again as service name instead of SID. Previous error was: " + ex.getMessage());
                     connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
