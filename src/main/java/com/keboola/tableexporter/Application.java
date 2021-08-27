@@ -98,7 +98,7 @@ public class Application {
                 /*
                     (DESCRIPTION=(ENABLE=BROKEN)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=dbHost)(PORT=dbPort)))(CONNECT_DATA=(SID=dbName)))
                 */
-                connectionString.append("jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=".append(dbHost).append(")(PORT=".append(dbPort).append(")))(CONNECT_DATA=(SID=".append(dbName).append(")))");
+                connectionString.append("jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=").append(dbHost).append(")(PORT=").append(dbPort).append(")))(CONNECT_DATA=(SID=").append(dbName).append(")))");
                 System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
                 connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
@@ -107,7 +107,7 @@ public class Application {
                 /*
                     (DESCRIPTION=(ENABLE=BROKEN)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=dbHost)(PORT=dbPort)))(CONNECT_DATA=(SID=dbName)))
                 */
-                connectionString.append("jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=".append(dbHost).append(")(PORT=".append(dbPort).append(")))(CONNECT_DATA=(SID=".append(dbName).append(")))");
+                connectionString.append("jdbc:oracle:thin:@(DESCRIPTION=(ENABLE=BROKEN)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=").append(dbHost).append(")(PORT=").append(dbPort).append(")))(CONNECT_DATA=(SID=").append(dbName).append(")))");
 
                 try {
                     System.out.println("Trying again as service name instead of SID. Previous error was: " + ex.getMessage());
