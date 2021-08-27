@@ -103,7 +103,6 @@ public class Application {
                 connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
                 connectionString.setLength(0);
-                (DESCRIPTION =(ADDRESS_LIST =(ADDRESS =(PROTOCOL=TCP)(HOST=blah.example.com)(PORT=1521)))(CONNECT_DATA=(SID=BLAHSID)))
                 /*
                     (DESCRIPTION=(ENABLE=BROKEN)(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=dbHost)(PORT=dbPort)))(CONNECT_DATA=(SID=dbName)))
                 */
