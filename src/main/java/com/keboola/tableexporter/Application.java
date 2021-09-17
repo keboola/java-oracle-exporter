@@ -93,6 +93,8 @@ public class Application {
         connectionProps.put("useFetchSizeWithLongColumn", "true");
         connectionProps.put("defaultRowPrefetch", defaultRowPrefetch);
         connectionProps.put("oracle.net.keepAlive", "true");
+        connectionProps.put("oracle.net.CONNECT_TIMEOUT", "10800");
+        connectionProps.put("oracle.jdbc.ReadTimeout", "10800");
 
         if (tnsnamesPath.equals("")) {
             try {
