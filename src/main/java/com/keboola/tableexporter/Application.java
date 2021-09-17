@@ -92,6 +92,7 @@ public class Application {
         connectionProps.put("password", dbPassword);
         connectionProps.put("useFetchSizeWithLongColumn", "true");
         connectionProps.put("defaultRowPrefetch", defaultRowPrefetch);
+        connectionProps.put("oracle.net.keepAlive", "true");
 
         if (tnsnamesPath.equals("")) {
             try {
@@ -110,6 +111,7 @@ public class Application {
             }
         } else {
             System.setProperty("oracle.net.tns_admin", tnsnamesPath);
+            System.setProperty("oracle.net.keepAlive", "true");
             try {
                 connectionString.append("jdbc:oracle:thin:@").append(tnsnamesService);
                 System.out.println("Connecting user " + dbUser + ". Using service name " + tnsnamesService + " from tnsnames.ora.");
