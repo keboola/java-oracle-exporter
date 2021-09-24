@@ -86,7 +86,7 @@ public class MetaFetcher {
         tableData.put("schema", rs.getString("OWNER"));
         tableData.put("owner", rs.getString("OWNER"));
         if (rs.getString("NUM_ROWS") != null) {
-            tableData.put("rowCount", rs.getInt("NUM_ROWS"));
+            tableData.put("rowCount", rs.getLong("NUM_ROWS"));
         }
         return tableData;
     }
