@@ -67,7 +67,7 @@ public class TableDataTest extends BaseTest {
                 output.put("tablespaceName", "sometablespace");
                 output.put("schema", "something");
                 output.put("owner", "something");
-                output.put("rowCount", 127);
+                output.put("rowCount", 127L);
                 break;
             case "noRowCountTest":
                 output.put("name", "someTableName");
