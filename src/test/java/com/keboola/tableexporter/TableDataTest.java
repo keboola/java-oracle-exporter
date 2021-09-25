@@ -48,7 +48,7 @@ public class TableDataTest extends BaseTest {
                 when(resultSetMock.getString("TABLESPACE_NAME")).thenReturn("sometablespace");
                 when(resultSetMock.getString("OWNER")).thenReturn("something");
                 when(resultSetMock.getString("NUM_ROWS")).thenReturn("127");
-                when(resultSetMock.getInt("NUM_ROWS")).thenReturn(127);
+                when(resultSetMock.getLong("NUM_ROWS")).thenReturn(127L);
                 break;
             case "noRowCountTest":
                 when(resultSetMock.getString("TABLE_NAME")).thenReturn("someTableName");
@@ -67,7 +67,7 @@ public class TableDataTest extends BaseTest {
                 output.put("tablespaceName", "sometablespace");
                 output.put("schema", "something");
                 output.put("owner", "something");
-                output.put("rowCount", 127);
+                output.put("rowCount", 127L);
                 break;
             case "noRowCountTest":
                 output.put("name", "someTableName");
