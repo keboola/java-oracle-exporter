@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.keboola</groupId>
     <artifactId>TableExporter</artifactId>
-    <version>3.2.4</version>
+    <version>COM.1117</version>
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
