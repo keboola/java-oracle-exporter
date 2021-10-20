@@ -29,6 +29,7 @@ public class TestConnectionTest extends BaseTest {
         String expectedLog = "executing action testConnection\n" +
                 "Processing configuration file " + tmpFile + "\n" +
                 "Connecting user system. Using service name XE from tnsnames.ora.\n" +
+                "Executing query: select sysdate from dual\n" +
                 "All done\n";
         assertEquals(expectedLog, systemOutRule.getLog());
     }
@@ -48,6 +49,7 @@ public class TestConnectionTest extends BaseTest {
         String expectedLog = "executing action testConnection\n" +
                 "Processing configuration file " + tmpFile + "\n" +
                 "Connecting user system to database XE at oracle on port 1521\n" +
+                "Executing query: select sysdate from dual\n" +
                 "All done\n";
         assertEquals(expectedLog, systemOutRule.getLog());
     }
@@ -77,7 +79,11 @@ public class TestConnectionTest extends BaseTest {
     public void testProxyUserInvalid() throws IOException {
         JSONObject baseObj = new JSONObject();
         JSONObject paramsObj = new JSONObject();
-        JSONObject dbNode = getDbJsonNode();
+        JSONObject dbObj = new JSONObject();
+        if (paramsObj.has("db")) {
+            dbObj = paramsObj.getJSONObject("db");
+        }
+        JSONObject dbNode = getDbJsonNode(dbObj);
         dbNode.put("proxyUser", "invalid-proxy-user");
         paramsObj.put("db", dbNode);
         baseObj.put("parameters", paramsObj);
@@ -109,9 +115,13 @@ public class TestConnectionTest extends BaseTest {
     protected String createTemporaryConfigFileWithInvalidCredentials(String inputConfigFile) throws IOException, ApplicationException {
         JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
         JSONObject paramsObj = baseObj.getJSONObject("parameters");
-        JSONObject dbObj = getDbJsonNode();
-        dbObj.put("#password", "invalid_password");
-        paramsObj.put("db", dbObj);
+        JSONObject dbObj = new JSONObject();
+        if (paramsObj.has("db")) {
+            dbObj = paramsObj.getJSONObject("db");
+        }
+        JSONObject dbNode = getDbJsonNode(dbObj);
+        dbNode.put("#password", "invalid_password");
+        paramsObj.put("db", dbNode);
         baseObj.remove("parameters");
         baseObj.put("parameters", paramsObj);
         File outputConfigFile = File.createTempFile("config", ".json");

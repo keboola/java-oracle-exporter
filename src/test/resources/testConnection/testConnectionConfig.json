@@ -1,3 +1,9 @@
 {
-  "parameters": { }
+  "parameters": {
+    "db": {
+      "initQueries": [
+        "select sysdate from dual"
+      ]
+    }
+  }
 }

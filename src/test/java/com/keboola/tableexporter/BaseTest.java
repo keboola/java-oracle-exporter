@@ -6,6 +6,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.json.JSONObject;
+import org.json.JSONArray;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -91,7 +92,11 @@ public class BaseTest {
         if (paramsObj.has("outputFile")) {
             outputFile = paramsObj.getString("outputFile");
         }
-        paramsObj.put("db", getDbJsonNode());
+        JSONObject dbObj = new JSONObject();
+        if (paramsObj.has("db")) {
+            dbObj = paramsObj.getJSONObject("db");
+        }
+        paramsObj.put("db", getDbJsonNode(dbObj));
         baseObj.remove("parameters");
         baseObj.put("parameters", paramsObj);
         File outputConfigFile = File.createTempFile("config", ".json");
@@ -129,9 +134,7 @@ public class BaseTest {
         }
     }
 
-    protected JSONObject getDbJsonNode() {
-        JSONObject dbNode = new JSONObject();
-
+    protected JSONObject getDbJsonNode(JSONObject dbNode) {
         dbNode.put("host", System.getenv("DB_HOST"));
         dbNode.put("port", System.getenv("DB_PORT"));
         dbNode.put("user", System.getenv("DB_USER"));

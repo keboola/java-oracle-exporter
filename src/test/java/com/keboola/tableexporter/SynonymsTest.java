@@ -38,10 +38,14 @@ public class SynonymsTest extends BaseTest {
     protected String createTemporaryConfigFileWithDifferentCredentials(String inputConfigFile) throws IOException, ApplicationException {
         JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
         JSONObject paramsObj = baseObj.getJSONObject("parameters");
-        JSONObject dbObj = getDbJsonNode();
-        dbObj.put("user", "SETUPUSER");
-        dbObj.put("#password", "setuppassword");
-        paramsObj.put("db", dbObj);
+        JSONObject dbObj = new JSONObject();
+        if (paramsObj.has("db")) {
+            dbObj = paramsObj.getJSONObject("db");
+        }
+        JSONObject dbNode = getDbJsonNode(dbObj);
+        dbNode.put("user", "SETUPUSER");
+        dbNode.put("#password", "setuppassword");
+        paramsObj.put("db", dbNode);
         baseObj.remove("parameters");
         baseObj.put("parameters", paramsObj);
         File outputConfigFile = File.createTempFile("config", ".json");
