@@ -12,6 +12,7 @@ import com.keboola.tableexporter.exception.CsvException;
 import com.keboola.tableexporter.exception.UserException;
 import oracle.jdbc.OracleConnection;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 public class Application {
 
@@ -26,6 +27,7 @@ public class Application {
     private String tnsnamesPath;
     private String tnsnamesService;
     private String defaultRowPrefetch = "50";
+    private ArrayList<String> userInitQueries = new ArrayList<String>();
     private static ArrayList<TableDefinition> tables;
     private static OracleConnection connection;
     private static boolean includeHeader;
@@ -78,6 +80,13 @@ public class Application {
         if (obj.getJSONObject("parameters").has("includeColumns")) {
             includeColumns = obj.getJSONObject("parameters").getBoolean("includeColumns");
         }
+
+        if (obj.getJSONObject("parameters").getJSONObject("db").has("initQueries")) {
+            JSONArray arr = obj.getJSONObject("parameters").getJSONObject("db").getJSONArray("initQueries");
+            for (int i = 0; i < arr.length(); i++) {
+                userInitQueries.add(arr.getString(i));
+            }
+        }
     }
 
     private void connectDb() throws ApplicationException, UserException {
@@ -129,6 +138,17 @@ public class Application {
                 connection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, proxyProp);
             } catch (SQLException ex) {
                 throw new UserException("Proxy user error: " + ex.getMessage(), ex);
+            }
+        }
+
+        for (int i = 0; i < userInitQueries.size(); i++) {
+            String query = userInitQueries.get(i);
+            System.out.println("Executing query: " + query);
+            try {
+                Statement stmt = connection.createStatement();
+                stmt.executeQuery(query);
+            } catch (SQLException ex) {
+                throw new UserException("SQL Exception: " + ex.getMessage(), ex);
             }
         }
     }

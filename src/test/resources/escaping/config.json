@@ -1,5 +1,10 @@
 {
   "parameters": {
+    "db": {
+      "initQueries": [
+        "select sysdate from dual"
+      ]
+    },
     "query": "SELECT * FROM escaping",
     "outputFile": "/code/in.c-main.escaping"
   }
