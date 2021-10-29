@@ -34,7 +34,6 @@ public class Application {
     private static boolean includeColumns;
 
     private void readConfigFile(String configFile) throws ApplicationException {
-        System.out.println("Processing configuration file " + configFile);
         String jsonString;
         try {
             byte[] encoded;
@@ -105,7 +104,7 @@ public class Application {
         if (tnsnamesPath.equals("")) {
             try {
                 connectionString.append("jdbc:oracle:thin:@").append(dbHost).append(":").append(dbPort).append(":").append(dbName);
-                System.out.println("Connecting user " + dbUser + " to database " + dbName + " at " + dbHost + " on port " + dbPort);
+                System.out.println("Connecting user \"" + dbUser + "\" to database \"" + dbName + "\" at \"" + dbHost + "\" on port \"" + dbPort + "\"");
                 connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
                 connectionString.setLength(0);
@@ -121,7 +120,7 @@ public class Application {
             System.setProperty("oracle.net.tns_admin", tnsnamesPath);
             try {
                 connectionString.append("jdbc:oracle:thin:@").append(tnsnamesService);
-                System.out.println("Connecting user " + dbUser + ". Using service name " + tnsnamesService + " from tnsnames.ora.");
+                System.out.println("Connecting user \"" + dbUser + "\". Using service name \"" + tnsnamesService + "\" from tnsnames.ora.");
                 connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
                 throw new UserException("Connection error: " + ex.getMessage(), ex);
@@ -143,7 +142,7 @@ public class Application {
 
         for (int i = 0; i < userInitQueries.size(); i++) {
             String query = userInitQueries.get(i);
-            System.out.println("Executing query: " + query);
+            System.out.println("Executing query \"" + query + "\"");
             try {
                 Statement stmt = connection.createStatement();
                 stmt.executeQuery(query);
@@ -154,11 +153,10 @@ public class Application {
     }
 
     private void fetchData() throws UserException {
-        System.out.println("Fetching data");
         try {
             final long start = System.nanoTime();
             Statement stmt = connection.createStatement();
-            System.out.println("Executing query: " + query);
+            System.out.println("Executing query \"" + query + "\"");
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData rsMeta = rs.getMetaData();
             ArrayList<String> header = new ArrayList<>();
@@ -176,7 +174,6 @@ public class Application {
             final long end = System.nanoTime();
             System.out.format("Fetched %d rows in %d seconds%n", rowCount, (end - start) / 1000000000);
             writer.close();
-            System.out.println("The output data file was created successfully.");
         } catch (SQLException ex) {
             throw new UserException("SQL Exception: " + ex.getMessage(), ex);
         } catch (CsvException ex) {
@@ -187,7 +184,6 @@ public class Application {
     public void run(String[] args) {
         try {
             String action = args[0];
-            System.out.println("executing action " + action);
             readConfigFile(args[1]);
             tnsnamesPath = "";
             if (args.length > 2) {
@@ -215,7 +211,6 @@ public class Application {
                 default:
                     throw new UserException("Invalid action provided: '" + action + "' is not supported.");
             }
-            System.out.println("All done");
         } catch (UserException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);

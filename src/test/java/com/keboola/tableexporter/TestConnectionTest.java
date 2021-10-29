@@ -26,11 +26,8 @@ public class TestConnectionTest extends BaseTest {
 
         Application.main(args);
 
-        String expectedLog = "executing action testConnection\n" +
-                "Processing configuration file " + tmpFile + "\n" +
-                "Connecting user system. Using service name XE from tnsnames.ora.\n" +
-                "Executing query: select sysdate from dual\n" +
-                "All done\n";
+        String expectedLog = "Connecting user \"system\". Using service name \"XE\" from tnsnames.ora.\n" +
+                "Executing query \"select sysdate from dual\"\n";
         assertEquals(expectedLog, systemOutRule.getLog());
     }
 
@@ -46,11 +43,8 @@ public class TestConnectionTest extends BaseTest {
 
         Application.main(args);
 
-        String expectedLog = "executing action testConnection\n" +
-                "Processing configuration file " + tmpFile + "\n" +
-                "Connecting user system to database XE at oracle on port 1521\n" +
-                "Executing query: select sysdate from dual\n" +
-                "All done\n";
+        String expectedLog = "Connecting user \"system\" to database \"XE\" at \"oracle\" on port \"1521\"\n" +
+                "Executing query \"select sysdate from dual\"\n";
         assertEquals(expectedLog, systemOutRule.getLog());
     }
 
@@ -100,9 +94,7 @@ public class TestConnectionTest extends BaseTest {
         } catch (ExitException exception) {
             assertEquals(1, exception.status);
 
-            String expectedLog = "executing action testConnection\n" +
-                    "Processing configuration file " + tmpFile + "\n" +
-                    "Connecting user system to database XE at oracle on port 1521\n" +
+            String expectedLog = "Connecting user \"system\" to database \"XE\" at \"oracle\" on port \"1521\"\n" +
                     "Proxy user = \"invalid-proxy-user\"\n";
             assertEquals(expectedLog, systemOutRule.getLog());
 
