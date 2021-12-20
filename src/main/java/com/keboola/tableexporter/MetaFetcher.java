@@ -41,7 +41,7 @@ public class MetaFetcher {
                 }
                 TreeMap curColumns = new TreeMap((TreeMap) curObject.get("columns"));
 
-                Integer curColumnIndex = resultSet.getInt("COLUMN_ID") - 1;
+                Long curColumnIndex = resultSet.getLong("COLUMN_ID")-1;
                 if (!curColumns.containsKey(curColumnIndex)) {
                     LinkedHashMap columnData = getColumnData(resultSet);
                     curColumns.put(curColumnIndex, columnData);
@@ -102,7 +102,7 @@ public class MetaFetcher {
             columnData.put("nullable",  false);
         }
         columnData.put("length", getColumnLength(rs));
-        columnData.put("ordinalPosition", rs.getInt("COLUMN_ID"));
+        columnData.put("ordinalPosition", rs.getLong("COLUMN_ID"));
         columnData.put("primaryKey", false);
         columnData.put("uniqueKey", false);
         return columnData;
