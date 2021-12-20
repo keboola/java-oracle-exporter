@@ -46,14 +46,14 @@ public class ColumnDataTest extends BaseTest {
             case "normalTest":
                 when(resultSetMock.getString("COLUMN_NAME")).thenReturn("column_name");
                 when(resultSetMock.getString("DATA_TYPE")).thenReturn("VARCHAR2");
-                when(resultSetMock.getInt("COLUMN_ID")).thenReturn(1);
+                when(resultSetMock.getLong("COLUMN_ID")).thenReturn(1L);
                 when(resultSetMock.getString("CHAR_LENGTH")).thenReturn("32");
                 when(resultSetMock.getString("NULLABLE")).thenReturn("N");
                 break;
             case "nullableTest":
                 when(resultSetMock.getString("COLUMN_NAME")).thenReturn("column_name");
                 when(resultSetMock.getString("DATA_TYPE")).thenReturn("VARCHAR2");
-                when(resultSetMock.getInt("COLUMN_ID")).thenReturn(1);
+                when(resultSetMock.getLong("COLUMN_ID")).thenReturn(1L);
                 when(resultSetMock.getString("CHAR_LENGTH")).thenReturn("32");
                 when(resultSetMock.getString("NULLABLE")).thenReturn("Y");
                 break;
@@ -70,7 +70,7 @@ public class ColumnDataTest extends BaseTest {
                 output.put("type", "VARCHAR2");
                 output.put("nullable", false);
                 output.put("length", "32");
-                output.put("ordinalPosition", 1);
+                output.put("ordinalPosition", 1L);
                 output.put("primaryKey", false);
                 output.put("uniqueKey", false);
                 break;
@@ -80,7 +80,7 @@ public class ColumnDataTest extends BaseTest {
                 output.put("type", "VARCHAR2");
                 output.put("nullable",  true);
                 output.put("length", "32");
-                output.put("ordinalPosition", 1);
+                output.put("ordinalPosition", 1L);
                 output.put("primaryKey", false);
                 output.put("uniqueKey", false);
                 break;
