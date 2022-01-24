@@ -11,6 +11,7 @@ import com.keboola.tableexporter.exception.ApplicationException;
 import com.keboola.tableexporter.exception.CsvException;
 import com.keboola.tableexporter.exception.UserException;
 import oracle.jdbc.OracleConnection;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -184,7 +185,11 @@ public class Application {
     public void run(String[] args) {
         try {
             String action = args[0];
-            readConfigFile(args[1]);
+            try {
+                readConfigFile(args[1]);
+            } catch (JSONException ex) {
+                throw new UserException(ex.getMessage());
+            }
             tnsnamesPath = "";
             if (args.length > 2) {
                 tnsnamesPath = args[2];

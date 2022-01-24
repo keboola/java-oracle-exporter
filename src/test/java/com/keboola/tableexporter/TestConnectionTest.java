@@ -70,6 +70,30 @@ public class TestConnectionTest extends BaseTest {
     }
 
     @Test
+    public void testMissingCredential() throws IOException, URISyntaxException, ApplicationException {
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        Application app = new Application();
+
+        URI configUri = classLoader.getResource("testConnection/testConnectionConfig.json").toURI();
+
+        String tmpFile = createTemporaryConfigFileWithMissingCredential(
+                Paths.get(configUri).toAbsolutePath().toString()
+        );
+
+        String[] args = {"testConnection", tmpFile};
+
+        try {
+            Application.main(args);
+        } catch (ExitException exception) {
+            assertEquals(1, exception.status);
+
+            String expectedErrorLog = "JSONObject[\"database\"] not found.\n";
+            assertEquals(expectedErrorLog, systemErrRule.getLog());
+        }
+    }
+
+    @Test
     public void testProxyUserInvalid() throws IOException {
         JSONObject baseObj = new JSONObject();
         JSONObject paramsObj = new JSONObject();
@@ -113,6 +137,23 @@ public class TestConnectionTest extends BaseTest {
         }
         JSONObject dbNode = getDbJsonNode(dbObj);
         dbNode.put("#password", "invalid_password");
+        paramsObj.put("db", dbNode);
+        baseObj.remove("parameters");
+        baseObj.put("parameters", paramsObj);
+        File outputConfigFile = File.createTempFile("config", ".json");
+        writeJsonConfigToFile(baseObj, outputConfigFile.getAbsolutePath());
+        return outputConfigFile.getAbsolutePath();
+    }
+
+    protected String createTemporaryConfigFileWithMissingCredential(String inputConfigFile) throws IOException, ApplicationException {
+        JSONObject baseObj = getJsonConfigFromFile(inputConfigFile);
+        JSONObject paramsObj = baseObj.getJSONObject("parameters");
+        JSONObject dbObj = new JSONObject();
+        if (paramsObj.has("db")) {
+            dbObj = paramsObj.getJSONObject("db");
+        }
+        JSONObject dbNode = getDbJsonNode(dbObj);
+        dbNode.remove("database");
         paramsObj.put("db", dbNode);
         baseObj.remove("parameters");
         baseObj.put("parameters", paramsObj);
