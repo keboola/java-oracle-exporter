@@ -21,6 +21,7 @@ services:
       - oracle
 
   oracle:
+    build: https://github.com/keboola/docker-oracle-xe-11g.git
     image: wnameless/oracle-xe-11g-r2
     ports:
       - "8080:8080"

@@ -45,18 +45,25 @@ public class Application {
             throw new ApplicationException("Configuration file is invalid", ex);
         }
         JSONObject obj = new JSONObject(jsonString);
+        // required params
+        dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
+        dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
+
+        // database required if not use tnsnames
+        if (tnsnamesPath.equals("")) {
+            dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
+        }
+
+        // optional params
         if (obj.getJSONObject("parameters").getJSONObject("db").has("port")) {
             dbPort = obj.getJSONObject("parameters").getJSONObject("db").get("port").toString();
         }
         if (obj.getJSONObject("parameters").getJSONObject("db").has("host")) {
             dbHost = obj.getJSONObject("parameters").getJSONObject("db").getString("host");
         }
-        dbUser = obj.getJSONObject("parameters").getJSONObject("db").getString("user");
         if (obj.getJSONObject("parameters").getJSONObject("db").has("proxyUser")) {
             dbProxyUser = obj.getJSONObject("parameters").getJSONObject("db").getString("proxyUser");
         }
-        dbPassword = obj.getJSONObject("parameters").getJSONObject("db").getString("#password");
-        dbName = obj.getJSONObject("parameters").getJSONObject("db").getString("database");
         if (obj.getJSONObject("parameters").getJSONObject("db").has("tnsnamesService")) {
             tnsnamesService = obj.getJSONObject("parameters").getJSONObject("db").getString("tnsnamesService");
         }
@@ -185,14 +192,14 @@ public class Application {
     public void run(String[] args) {
         try {
             String action = args[0];
+            tnsnamesPath = "";
+            if (args.length > 2) {
+                tnsnamesPath = args[2];
+            }
             try {
                 readConfigFile(args[1]);
             } catch (JSONException ex) {
                 throw new UserException(ex.getMessage());
-            }
-            tnsnamesPath = "";
-            if (args.length > 2) {
-                tnsnamesPath = args[2];
             }
             switch (action) {
                 case "testConnection":
