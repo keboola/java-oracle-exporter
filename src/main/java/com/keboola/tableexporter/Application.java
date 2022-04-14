@@ -131,7 +131,7 @@ public class Application {
                 System.out.println("Connecting user \"" + dbUser + "\". Using service name \"" + tnsnamesService + "\" from tnsnames.ora.");
                 connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
-                throw new UserException("Connection error: " + ex.getMessage(), ex);
+                throw new UserException("TNSNAMES is probably invalid, please check it, especially SID, ServiceName and parentheses. Connection error: " + ex.getMessage(), ex);
             }
         }
 

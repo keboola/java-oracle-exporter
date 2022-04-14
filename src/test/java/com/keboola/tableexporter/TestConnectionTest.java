@@ -32,6 +32,27 @@ public class TestConnectionTest extends BaseTest {
     }
 
     @Test
+    public void testTestConnectionInvalidTnsnames() throws IOException, URISyntaxException, ApplicationException {
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        URI configUri = classLoader.getResource("testConnection/testConnectionConfig.json").toURI();
+
+        String tmpFile = super.createTemporaryConfigFile(Paths.get(configUri).toAbsolutePath().toString());
+
+        String[] args = {"testConnection", tmpFile, createTemporaryInvalidTnsnameFile()};
+
+        try {
+            Application.main(args);
+            fail("Exception expected");
+        } catch (ExitException exception) {
+            assertEquals(1, exception.status);
+
+            String expectedLog = "TNSNAMES is probably invalid, please check it, especially SID, ServiceName and parentheses. Connection error: IO Error: The Network Adapter could not establish the connection\n";
+            assertEquals(expectedLog, systemErrRule.getLog());
+        }
+    }
+
+    @Test
     public void testTestConnectionCredentials() throws IOException, URISyntaxException, ApplicationException {
         ClassLoader classLoader = getClass().getClassLoader();
 
