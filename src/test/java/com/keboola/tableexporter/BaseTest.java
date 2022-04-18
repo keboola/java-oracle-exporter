@@ -114,6 +114,16 @@ public class BaseTest {
         return dir.toString();
     }
 
+    protected String createTemporaryInvalidTnsnameFile() throws IOException {
+        Path dir = Files.createTempDirectory("invalidtnsnames");
+        Path fileToCreatePath = dir.resolve("tnsnames.ora");
+        Path outputFile = Files.createFile(fileToCreatePath);
+
+        String content = "XE = (DESCRIPTION = (ADDRESS = (PROTOCOL = invalidProtocol)))";
+        writeTnsnamesToFile(content, outputFile.toString());
+        return dir.toString();
+    }
+
     protected JSONObject getJsonConfigFromFile(String fileName) throws IOException {
         String jsonString;
         byte[] encoded;
