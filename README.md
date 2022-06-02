@@ -44,3 +44,7 @@ arguments:
 [0] - action (one of "export", "getTables", "testConnection")
 [1] - path to configuration file
 [2] - [only valid for export action] boolean includeHeaders
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
