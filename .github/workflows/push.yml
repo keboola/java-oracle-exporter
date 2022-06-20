@@ -1,0 +1,30 @@
+name: 'GitHub Actions'
+'on':
+  - push
+concurrency: 'ci-${{ github.ref }}'
+env:
+  APP_IMAGE: keboola/oracle-table-exporter
+
+  AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+  AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+
+  DOCKERHUB_USER: '${{ secrets.DOCKERHUB_USER }}'
+  DOCKERHUB_TOKEN: '${{ secrets.DOCKERHUB_TOKEN }}'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: 'Check out the repo'
+        uses: actions/checkout@v2
+      -
+        name: 'Docker login'
+        if: env.DOCKERHUB_TOKEN
+        run: 'docker login --username "$DOCKERHUB_USER" --password "$DOCKERHUB_TOKEN"'
+      -
+        name: 'Build image'
+        run: 'docker build --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -t $APP_IMAGE .'
+      -
+        name: 'Run tests'
+        run: 'docker-compose run tests'
