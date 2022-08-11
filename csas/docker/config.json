@@ -1,0 +1,16 @@
+{
+  "parameters": {
+    "db": {
+      "host": "",
+      "port": "",
+      "user": "",
+      "#password": "",
+      "database": "",
+      "schema": "",
+      "initQueries": [],
+      "defaultRowPrefetch": "5000"
+    },
+    "query": "",
+    "outputFile": ""
+  }
+}
