@@ -1,0 +1,7 @@
+{
+  "parameters": {
+    "outputFile": "/code/tables.json",
+    "tables": [],
+    "includeColumns": true
+  }
+}

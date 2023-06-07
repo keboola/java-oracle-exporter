@@ -224,13 +224,27 @@ public class Application {
                     connectDb();
                     fetchData();
                     break;
+                case "checkNulls":
+                    if (args.length != 5) {
+                        throw new UserException("Table name and/or column name were not provided for the 'checkNulls' action.");
+                    } else {
+                        connectDb();
+                        String tableName = args[3];
+                        String columnName = args[4];
+                        try {
+                            checkColumnForNulls(tableName, columnName, outputFile);
+                        } catch (SQLException|CsvException|IOException ex) {
+                            throw new ApplicationException(ex.getMessage(), ex);
+                        }
+                    }
+                    break;
                 default:
                     throw new UserException("Invalid action provided: '" + action + "' is not supported.");
             }
         } catch (UserException ex) {
             System.err.println(ex.getMessage());
             System.exit(1);
-        }catch (ApplicationException ex) {
+        } catch (ApplicationException ex) {
             System.err.println(ex.getMessage());
             StackTraceElement[] elements = ex.getStackTrace();
             for (int i = 1; i < elements.length; i++) {
@@ -253,6 +267,18 @@ public class Application {
                 connection.close();
             } catch (Throwable e) {}
         }
+    }
+
+    public void checkColumnForNulls(String tableName, String columnName, String outputFile) throws CsvException, UserException, SQLException, IOException {
+        String query = "SELECT COUNT(*) AS null_count FROM " + tableName + " WHERE " + columnName + " IS NULL";
+        Statement stmt = connection.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+
+        CsvWriter writer = new CsvWriter(outputFile, new String[] {"Null Count"});
+        int rowCount = writer.write(rs, false);  // Assuming no LOBs in this result
+        writer.close();
+
+        System.out.format("Written null count for column %s in table %s to file %s\n", columnName, tableName, outputFile);
     }
 
     public static void main(String[] args) {
