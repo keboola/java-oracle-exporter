@@ -28,8 +28,7 @@ public class TableDataTest extends BaseTest {
     public static Iterable<Object[]> data() throws SQLException {
 
         return Arrays.asList(new Object[][] {
-                { getResultSetMock("normalTest"), getExpectedOutput("normalTest") },
-                { getResultSetMock("noRowCountTest"), getExpectedOutput("noRowCountTest") }
+                { getResultSetMock("normalTest"), getExpectedOutput("normalTest") }
         });
     }
 
@@ -47,13 +46,6 @@ public class TableDataTest extends BaseTest {
                 when(resultSetMock.getString("TABLE_NAME")).thenReturn("someTableName");
                 when(resultSetMock.getString("TABLESPACE_NAME")).thenReturn("sometablespace");
                 when(resultSetMock.getString("OWNER")).thenReturn("something");
-                when(resultSetMock.getString("NUM_ROWS")).thenReturn("127");
-                when(resultSetMock.getLong("NUM_ROWS")).thenReturn(127L);
-                break;
-            case "noRowCountTest":
-                when(resultSetMock.getString("TABLE_NAME")).thenReturn("someTableName");
-                when(resultSetMock.getString("TABLESPACE_NAME")).thenReturn("sometablespace");
-                when(resultSetMock.getString("OWNER")).thenReturn("something");
                 break;
         }
         return resultSetMock;
@@ -63,13 +55,6 @@ public class TableDataTest extends BaseTest {
         LinkedHashMap output = new LinkedHashMap();
         switch (testName) {
             case "normalTest":
-                output.put("name", "someTableName");
-                output.put("tablespaceName", "sometablespace");
-                output.put("schema", "something");
-                output.put("owner", "something");
-                output.put("rowCount", 127L);
-                break;
-            case "noRowCountTest":
                 output.put("name", "someTableName");
                 output.put("tablespaceName", "sometablespace");
                 output.put("schema", "something");
