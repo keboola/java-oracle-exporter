@@ -85,9 +85,6 @@ public class MetaFetcher {
         }
         tableData.put("schema", rs.getString("OWNER"));
         tableData.put("owner", rs.getString("OWNER"));
-        if (rs.getString("NUM_ROWS") != null) {
-            tableData.put("rowCount", rs.getLong("NUM_ROWS"));
-        }
         return tableData;
     }
 
@@ -156,8 +153,7 @@ public class MetaFetcher {
         String sql = "SELECT \n" +
                 "        TABLE_NAME , \n" +
                 "        TABLESPACE_NAME, \n" +
-                "        OWNER, \n" +
-                "        NUM_ROWS\n" +
+                "        OWNER\n" +
                 "        FROM all_tables\n" +
                 "        WHERE 1=1\n" +
                 "        AND (\n" +
@@ -167,10 +163,10 @@ public class MetaFetcher {
                 "        AND all_tables.OWNER " +
                 "           NOT IN " + systemOwners + "\n" +
                 "        UNION ALL\n" +
-                "        SELECT VIEW_NAME, '', OWNER, 0 FROM ALL_VIEWS \n" +
+                "        SELECT VIEW_NAME, '', OWNER FROM ALL_VIEWS \n" +
                 "        WHERE OWNER NOT IN " + systemOwners +"\n" +
                 "        UNION ALL\n" +
-                "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
+                "        SELECT TABLE_NAME, '', TABLE_OWNER FROM USER_SYNONYMS \n" +
                 "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n";
 
         ArrayList<String> statementValues = new ArrayList<>();
@@ -200,7 +196,6 @@ public class MetaFetcher {
         String sql = "SELECT TABS.TABLE_NAME ,\n" +
                 "    TABS.TABLESPACE_NAME ,\n" +
                 "    TABS.OWNER ,\n" +
-                "    TABS.NUM_ROWS ,\n" +
                 "    COLS.COLUMN_NAME ,\n" +
                 "    COLS.CHAR_LENGTH ,\n" +
                 "    COLS.DATA_PRECISION ,\n" +
@@ -219,8 +214,7 @@ public class MetaFetcher {
                 "        SELECT \n" +
                 "        TABLE_NAME , \n" +
                 "        TABLESPACE_NAME, \n" +
-                "        OWNER , \n" +
-                "        NUM_ROWS\n" +
+                "        OWNER\n" +
                 "        FROM all_tables\n" +
                 "        WHERE 1=1\n" +
                 "        AND (\n" +
@@ -230,10 +224,10 @@ public class MetaFetcher {
                 "        AND all_tables.OWNER " +
                 "           NOT IN " + systemOwners + "\n" +
                 "        UNION ALL\n" +
-                "        SELECT VIEW_NAME, '', OWNER, 0 FROM ALL_VIEWS \n" +
+                "        SELECT VIEW_NAME, '', OWNER FROM ALL_VIEWS \n" +
                 "        WHERE OWNER NOT IN " + systemOwners + "\n" +
                 "        UNION ALL\n" +
-                "        SELECT TABLE_NAME, '', TABLE_OWNER, 0 FROM USER_SYNONYMS \n" +
+                "        SELECT TABLE_NAME, '', TABLE_OWNER FROM USER_SYNONYMS \n" +
                 "        WHERE TABLE_OWNER != 'SYS' AND TABLE_OWNER != 'SYSTEM'\n" +
                 "    )\n" +
                 "    TABS\n" +
