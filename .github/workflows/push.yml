@@ -27,4 +27,4 @@ jobs:
         run: 'docker build --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -t $APP_IMAGE .'
       -
         name: 'Run tests'
-        run: 'docker-compose run tests'
+        run: 'docker compose run tests'
