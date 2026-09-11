@@ -102,6 +102,9 @@ public class Application {
         } catch (SQLException ex) {
             throw new ApplicationException("Driver error", ex);
         }
+        // ojdbc sends the JVM timezone as a region name by default; on JDK 8 or an older
+        // database timezone file this fails with ORA-01882. Send a GMT offset instead.
+        System.setProperty("oracle.jdbc.timezoneAsRegion", "false");
         StringBuilder connectionString = new StringBuilder();
         Properties connectionProps = new Properties();
         connectionProps.put("user", dbUser);
