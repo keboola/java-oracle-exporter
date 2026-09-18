@@ -113,6 +113,9 @@ public class Application {
         connectionProps.put("defaultRowPrefetch", defaultRowPrefetch);
         connectionProps.put("oracle.net.keepAlive", "true");
         connectionProps.put("oracle.net.TCP_KEEPINTERVAL", "60");
+        // Fail fast when the database does not answer (blocked network path or a stopped
+        // instance). Without a limit the connect can hang for minutes.
+        connectionProps.put("oracle.net.CONNECT_TIMEOUT", "30000");
 
         if (tnsnamesPath.equals("")) {
             try {
@@ -138,7 +141,7 @@ public class Application {
                 System.out.println("Connecting user \"" + dbUser + "\". Using service name \"" + tnsnamesService + "\" from tnsnames.ora.");
                 connection = (OracleConnection) DriverManager.getConnection(connectionString.toString(), connectionProps);
             } catch (SQLException ex) {
-                throw new UserException("TNSNAMES is probably invalid, please check it, especially SID, ServiceName and parentheses. Connection error: " + ex.getMessage(), ex);
+                throw new UserException("Connection error using service name \"" + tnsnamesService + "\" from the TNS configuration: " + ex.getMessage(), ex);
             }
         }
 

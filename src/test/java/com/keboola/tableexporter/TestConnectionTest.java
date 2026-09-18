@@ -48,8 +48,9 @@ public class TestConnectionTest extends BaseTest {
         } catch (ExitException exception) {
             assertEquals(1, exception.status);
 
-            String expectedLog = "TNSNAMES is probably invalid, please check it, especially SID, ServiceName and parentheses. Connection error: IO Error: The Network Adapter could not establish the connection";
-            assertTrue(systemErrRule.getLog().contains(expectedLog));
+            String log = systemErrRule.getLog();
+            assertTrue(log.contains("Connection error using service name"));
+            assertTrue(log.contains("IO Error: The Network Adapter could not establish the connection"));
         }
     }
 
